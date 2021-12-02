@@ -5,7 +5,12 @@ Maria J. Ribeiro, Miguel Castelo-Branco
 bioRxiv 2021.11.18.467545; doi: https://doi.org/10.1101/2021.11.18.467545 
 
 
-Analyses scripts run on matlab, are organized according to the analyses in the manuscript illustrated by each figure, and depend on:
+Task and acquisition parameters are described in detail in
+Age-related differences in event-related potentials and pupillary responses in cued reaction time tasks.
+Maria J. Ribeiro, Miguel Castelo-Branco. Neurobiol Aging. 2019 Jan;73:177-189. doi: 10.1016/j.neurobiolaging.2018.09.028
+
+
+Analyses scripts run on Matlab and depend on:
 
 	eeglab functions - https://sccn.ucsd.edu/eeglab/index.php
 	
@@ -27,7 +32,7 @@ Analyses scripts run on matlab, are organized according to the analyses in the m
 	Robust Correlation Toolbox v2 - https://github.com/CPernet/Robust-Correlations
 
 
-Task script depends on:
+Task scripts depend on:
 
 	Psychophysics Toolbox Version 3 - http://psychtoolbox.org/
 
@@ -37,4 +42,4 @@ Maria J. Ribeiro and Miguel Castelo-Branco (2021). EEG, ECG and pupil data from 
 [Dataset] doi: 10.18112/openneuro.ds003690.v1.0.0
 
 
-For questions email mjribeiro@fmed.uc.pt; twitter @Ribeiro_neurosc
+For questions, feel free to contact by email mjribeiro@fmed.uc.pt; twitter @Ribeiro_neurosc

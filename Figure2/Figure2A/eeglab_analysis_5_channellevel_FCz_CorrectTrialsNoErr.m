@@ -43,7 +43,8 @@ end
 % FCz data EEG.data(channel, time, trials)
 FCz_Detection=squeeze(EEG.data(a,:,:));
 
-% include only correct go trials and exclude trials after errors!
+% include only correct go trials and exclude trials after errors
+% load behavioural parameters calculated in eeglab_analysis_4_behavior.m
 cd(strcat(pwd,'/detection_behavior'));
 clear misses multiple_responses response2cue slow_responses response2nogo error_trials;
 % error_trials - all errors, response2cue, multiple responses, misses, slow responses
@@ -91,7 +92,8 @@ EEG = pop_loadset(filename);
 % FCz data EEG.data(channel, time, trials)
 FCz_GNG=squeeze(EEG.data(a,:,:));
 
-% include only correct go trials and exclude trials after errors!
+% include only correct go trials and exclude trials after errors
+% load behavioural parameters calculated in eeglab_analysis_4_behavior.m
 clear misses multiple_responses response2cue slow_responses response2nogo error_trials correct_trial;
 cd(strcat(pwd,'/GNG_behavior'));
 load misses.mat;

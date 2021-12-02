@@ -1,5 +1,5 @@
 % across trials standard deviation of amplitude of cue-locked pupil
-% response durign the preparatory period before target onset
+% response during the preparatory period before target onset
 clear; close all;
 younger=[4 9 10 13 15 16 25 26 28 31 33 34 36 42 44 45 46 50 51 53 54 56 59 62 66 68 72 74 76 78 80 81 82 84 85];
 older=[7 8	11	12	14	17	19	20	21	22	23	32	35	37	41	43	47 48 49 52 55	57	58	60	61	63	64  65	67	69	70	71	73	75  77  79 83   86];
