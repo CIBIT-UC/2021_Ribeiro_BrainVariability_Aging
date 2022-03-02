@@ -46,7 +46,7 @@ for grp = 1:2
             EEG = pop_epoch( EEG, {  '1'  }, [-.2  6]); % epoch locked to cue onset
             % delete epochs with artefacts as well as cue-only trials and error trials and trials after error trials
             EEG = pop_selectevent( EEG, 'omitepoch', RejectEpochsCorrect{t} ,'deleteevents','off','deleteepochs','on','invertepochs','off');
-            pupil_baseline{t} = squeeze(mean(EEG.data(1, 1:48, :), 2)); 
+            pupil_baseline{t} = squeeze(mean(EEG.data(1, 1:48, :), 2));
             EEG = pop_rmbase( EEG, [-200    0]); % subtract baseline pupil
             
             % average pupil dilation from 1000 - 1500 ms after cue onset -

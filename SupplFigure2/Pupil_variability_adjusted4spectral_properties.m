@@ -121,11 +121,11 @@ T_values = [T_values, Res]; % offset
 % % plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 % plot_all_data_2tasks(Res(T.group==1, 1), Res(T.group==1, 2),...
 %     Res(T.group==2, 1), Res(T.group==2, 2), 'Pupil variability residuals')
-%% regressout power of slow fluctuations as measuerd in raw PSD
+%% regressout power of slow fluctuations as measured in raw PSD
 close all
 % load data - data were calculated here:
 % G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability\pupil_spectrum_percent_signal_change.m
-load Pupil_PSD_20s_epochs_Young; load Pupil_PSD_20s_epochs_Older; load Frequencies_20s_epochs;
+load([load_dir, 'Pupil_PSD_20s_epochs_Young']); load([load_dir, 'Pupil_PSD_20s_epochs_Older']); load([load_dir, 'Frequencies_20s_epochs']);
 Frequencies = Frequencies_20s_epochs;
 % avg power spectrum across runs of same task condition
 % group: 1 = young; 2 = older; task: 1 = passive; 2 = simple RT; 3 = gng
@@ -155,9 +155,8 @@ PSD_per_condition_older(3, :, :) = mean(Pupil_PSD_20s_epochs_Older(4:5, :, :), 1
 % 
 
 
-
 % correlate with power of slow fluctuations in passive task
-% frequency at average peak in corelation between raw passive PSD and pupil
+% frequency at average peak in correlation between raw passive PSD and pupil
 % variability - avg peak = .4394 = freq to use [0.468750000000000]
 % calculated in: G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability\corr_aperiodic_spect_Pupilstdev.m
 Res = [];
@@ -166,10 +165,12 @@ for task = 1:2
     X = [[squeeze(log10(PSD_per_condition_young(1, :, 5)))'; squeeze(log10(PSD_per_condition_older(1, :, 5)))'],...
         ones(size(PSD_per_condition_young, 2)+size(PSD_per_condition_older, 2), 1)];
     [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
-    % scatter plot and correlation analyses
-    xlim_min = -inf;
-    scatter_and_corr(X(T.group==1), Y(T.group==1), 'PD SD', 'log10PSD', ['Young - ', task_name{task}], 0, xlim_min)
-    scatter_and_corr(X(T.group==2), Y(T.group==2), 'PD SD', 'log10PSD', ['Older - ', task_name{task}], 0, xlim_min)
+    if task == 2
+        % scatter plot and correlation analyses
+        xlim_min = -inf;
+        scatter_and_corr(X(T.group==1), Y(T.group==1), 'PD SD', 'log10(slow spectral power)', 'Young', 0, xlim_min)
+        scatter_and_corr(X(T.group==2), Y(T.group==2), 'PD SD', 'log10(slow spectral power)', 'Older', 0, xlim_min)
+    end
 end
 
 % plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
@@ -271,7 +272,7 @@ function scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt, xli
     end
     ax = gca; ax.FontSize = 24; ax.FontName = 'Arial';ax.Color = 'none';
     ylabel(ylabel_txt, 'FontSize', 32, 'FontWeight','normal');
-    xlabel(xlabel_txt, 'FontSize', 32, 'FontWeight','normal');
+    xlabel(xlabel_txt, 'FontSize', 28, 'FontWeight','normal');
     title(title_txt, 'FontSize', 32, 'FontWeight','normal');
     axis([xlim_min inf -inf inf])
     xl = xlim; yl = ylim;

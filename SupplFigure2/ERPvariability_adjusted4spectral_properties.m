@@ -157,10 +157,13 @@ for task = 1:2
     X = [[squeeze(10*log10(avg_power_spectrum_young(task, :, 2)))'; squeeze(10*log10(avg_power_spectrum_older(task, :, 2)))'],...
         ones(size(avg_power_spectrum_young, 2)+size(avg_power_spectrum_older, 2), 1)];
     [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
-    % scatter plot and correlation analyses
-    xlim_min = -.02;
-    scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'Slow spectral power', 'Young - simple RT', 0, xlim_min)
-    scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'Slow spectral power', 'Older - simple RT', 0, xlim_min)
+    if task == 2
+        % scatter plot and correlation analyses
+        %scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt, xlim_min)
+        xlim_min = 9;
+        scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'log10(slow spectral power)', 'Young', 1, xlim_min)
+        scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'log10(low spectral power)', 'Older', 1, xlim_min)
+    end
 
 end
 

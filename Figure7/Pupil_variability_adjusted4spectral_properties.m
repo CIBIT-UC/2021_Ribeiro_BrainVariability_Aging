@@ -16,10 +16,10 @@ T = readtable([load_dir filename]);
 
 % variable to save excel file with residuals
 T_values = T.group;
-variable_names = {'group','exponent_simpleRT','exponent_gng',...
-    'offset_simpleRT','offset_gng',...
-    'slowpower_simpleRT','slowpower_gng'};
-
+variable_names = {'group', 'PDvar_simpleRT', 'PDvar_gng', 'PDvar_simpleRT_adjexp', 'PDvar_gng_adjexp', ...
+    'PDvar_simpleRT_adjoffset', 'PDvar_gng_adjoffset', 'PDvar_simpleRT_adjslowfluct', 'PDvar_gng_adjslowfluct'};
+T_values = [T_values, [std_pupil_avg_response{1, 1}; std_pupil_avg_response{2, 1}]]; % PD variability in simple RT task
+T_values = [T_values, [std_pupil_avg_response{1, 2}; std_pupil_avg_response{2, 2}]]; % PD variability in gng task
 task_name = {'Simple RT', 'Go/no-go'};
 % Pupil variability adjusted for spectral exponent measured in passive task condition
 Res = []; % std_pupil_avg_response = group x task
@@ -125,7 +125,7 @@ T_values = [T_values, Res]; % offset
 close all
 % load data - data were calculated here:
 % G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability\pupil_spectrum_percent_signal_change.m
-load Pupil_PSD_20s_epochs_Young; load Pupil_PSD_20s_epochs_Older; load Frequencies_20s_epochs;
+load([load_dir 'Pupil_PSD_20s_epochs_Young']); load([load_dir 'Pupil_PSD_20s_epochs_Older']); load([load_dir 'Frequencies_20s_epochs']);
 Frequencies = Frequencies_20s_epochs;
 % avg power spectrum across runs of same task condition
 % group: 1 = young; 2 = older; task: 1 = passive; 2 = simple RT; 3 = gng
@@ -183,7 +183,7 @@ T_values = [T_values, Res]; % slow PSD power
 R = array2table(T_values, ...
     'VariableNames',variable_names);
 
-filename = 'Pupilstdev_adjusted4exp_offset_slowpower.xlsx';
+filename = [load_dir filesep 'Pupilstdev_adjusted4exp_offset_slowpower.xlsx'];
 writetable(R,filename,'Sheet',1,'Range','A1')
 
 %% function to plot all data points 2 tasks 2 groups

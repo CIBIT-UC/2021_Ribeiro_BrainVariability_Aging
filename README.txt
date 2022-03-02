@@ -13,6 +13,7 @@ Maria J. Ribeiro, Miguel Castelo-Branco. Neurobiol Aging. 2019 Jan;73:177-189. d
 Analyses scripts run on Matlab and depend on:
 
 	eeglab functions - https://sccn.ucsd.edu/eeglab/index.php
+		in topoplot function change line 275 to COLORARRAY  = { [0 0 0] [0.5 0 0] [0 0 0] }; to make circles black
 	
 	Pupillary waveform deblinking Matlab code stublinks.m from https://sites.pitt.edu/~gsiegle/
 

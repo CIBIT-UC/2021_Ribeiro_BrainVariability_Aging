@@ -7,7 +7,7 @@ older=[7  8	11	12	14	17	19	20	21	22	23	32	35	37	41	43	47 48 49 52 55	57	58	60	61
 participants=[younger older];
 task={'W1', 'D1', 'D2', 'G1', 'G2'};
 
-% open eeglab 
+% open eeglab
 [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 for p=participants
 %clear eeglab

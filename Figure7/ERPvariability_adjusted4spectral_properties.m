@@ -23,8 +23,11 @@ T(abs(T.zscore_fisherR2Z_simpleRT)>2.5, :) = [];
 ERP_avg_amp_stdev_young(:, outliers_young, :) = [];
 ERP_avg_amp_stdev_older(:, outliers_older, :) = [];
 
-% variable to save excel file with residuals
-T_values = T.group;
+% variable to save excel file with ERP variability values with and
+% without adjustments - FCz - channel = 16
+group = T.group;
+ERPvar_simpleRT = [squeeze(ERP_avg_amp_stdev_young(1, :, 16))'; squeeze(ERP_avg_amp_stdev_older(1, :, 16))'];
+ERPvar_gng = [squeeze(ERP_avg_amp_stdev_young(2, :, 16))'; squeeze(ERP_avg_amp_stdev_older(2, :, 16))'];
 variable_names = {'group','exponent_simpleRT','exponent_gng',...
     'offset_simpleRT','offset_gng',...
     'slowpower_simpleRT','slowpower_gng'};
@@ -34,6 +37,9 @@ task = 1;
 Y = [squeeze(ERP_avg_amp_stdev_young(task, :, 16))'; squeeze(ERP_avg_amp_stdev_older(task, :, 16))'];
 X = [T.exponent_simpleRT, ones(length(T.exponent_simpleRT), 1)];
 [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
+
+ERPvar_simpleRT_adjexp = Res(:, 1);
+
 %% scatter plot and correlation analyses
 % scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt)
 scatter_and_corr(X(T.group==1, 1), Y(T.group==1), 'CNV SD', 'Exponent', 'Young - simple RT', 1, -inf)
@@ -43,6 +49,9 @@ task = 2;
 Y = [squeeze(ERP_avg_amp_stdev_young(task, :, 16))'; squeeze(ERP_avg_amp_stdev_older(task, :, 16))'];
 X = [T.exponent_gng, ones(length(T.exponent_gng), 1)];
 [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
+
+ERPvar_gng_adjexp = Res(:, 2);
+
 % scatter plot and correlation analyses
 scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'PSD exponent', 'Young', 1, -inf)
 scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'PSD exponent', 'Older', 1, -inf)
@@ -54,7 +63,7 @@ plot_all_data_onetask(Res(1:size(ERP_avg_amp_stdev_young, 2), 2),  Res(size(ERP_
 
 [H,P,CI,STATS] = ttest2(Res(1:size(ERP_avg_amp_stdev_young, 2), 2),  Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2))
 
-T_values = [T_values, Res];
+% T_values = [T_values, Res];
 
 %% ERP variability adjusted for spectral offset - FCz - channel = 16
 Res = [];
@@ -62,6 +71,9 @@ task = 1;
 Y = [squeeze(ERP_avg_amp_stdev_young(task, :, 16))'; squeeze(ERP_avg_amp_stdev_older(task, :, 16))'];
 X = [T.offset_simpleRT, ones(length(T.offset_simpleRT), 1)];
 [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
+
+ERPvar_simpleRT_adjoffset = Res(:, 1);
+
 % scatter plot and correlation analyses
 scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'PSD offset', 'Young - simple RT', 0, -inf)
 scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'PSD offset', 'Older - simple RT', 0, -inf)
@@ -70,6 +82,9 @@ task = 2;
 Y = [squeeze(ERP_avg_amp_stdev_young(task, :, 16))'; squeeze(ERP_avg_amp_stdev_older(task, :, 16))'];
 X = [T.offset_gng, ones(length(T.offset_gng), 1)];
 [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
+
+ERPvar_simpleRT_adjoffset = Res(:, 1);
+
 % scatter plot and correlation analyses
 scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'PSD offset', 'Young', 1, -inf)
 scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'PSD offset', 'Older', 1, -inf)
@@ -79,7 +94,7 @@ plot_all_data_2tasks(Res(1:size(ERP_avg_amp_stdev_young, 2), 1), Res(1:size(ERP_
 % plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 plot_all_data_onetask(Res(1:size(ERP_avg_amp_stdev_young, 2), 2),  Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2), 'CNV SD residuals')
 [H,P,CI,STATS] = ttest2(Res(1:size(ERP_avg_amp_stdev_young, 2), 2),  Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2))
-T_values = [T_values, Res];
+% T_values = [T_values, Res];
 %% regressout alpha power from ERP variability of both groups
 Res = [];
 task = 1;
@@ -157,12 +172,16 @@ for task = 1:2
     X = [[squeeze(10*log10(avg_power_spectrum_young(task, :, 2)))'; squeeze(10*log10(avg_power_spectrum_older(task, :, 2)))'],...
         ones(size(avg_power_spectrum_young, 2)+size(avg_power_spectrum_older, 2), 1)];
     [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
+    
     % scatter plot and correlation analyses
     xlim_min = -.02;
     scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'Slow spectral power', 'Young - simple RT', 0, xlim_min)
     scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'Slow spectral power', 'Older - simple RT', 0, xlim_min)
 
 end
+
+ERPvar_simpleRT_adjslowfluct = Res(:, 1);
+ERPvar_gng_adjslowfluct = Res(:, 2);
 
 % plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 plot_all_data_2tasks(Res(1:size(ERP_avg_amp_stdev_young, 2), 1), Res(1:size(ERP_avg_amp_stdev_young, 2), 2), Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 1), Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2), 'CNV variability residuals')
@@ -178,6 +197,10 @@ plot_all_data_onetask(Res(1:size(ERP_avg_amp_stdev_young, 2), 2), Res(size(ERP_a
 % filename = 'ERPstdev_adjusted4exp_offset_slowpower.xlsx';
 % writetable(R,filename,'Sheet',1,'Range','A1')
 
+% save table to excel to analyse with SPSS
+ERPvar_with_without_adjustment = table(group, ERPvar_simpleRT, ERPvar_gng, ERPvar_simpleRT_adjexp, ERPvar_gng_adjexp, ...
+    ERPvar_simpleRT_adjoffset, ERPvar_simpleRT_adjoffset, ERPvar_simpleRT_adjslowfluct, ERPvar_gng_adjslowfluct);
+writetable(ERPvar_with_without_adjustment,[load_dir filesep 'ERPvar_with_without_adjustment.xlsx']);
 %% function to plot all data points 2 tasks 2 groups
 function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 

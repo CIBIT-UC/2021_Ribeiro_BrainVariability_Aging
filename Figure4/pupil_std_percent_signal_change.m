@@ -57,9 +57,7 @@ for grp = 1:2
             % pupil_avg_response{t} = squeeze(mean(EEG.data(1, 360:end, setdiff(1:60, RejectEpochsCorrect{t-1})), 2)); % time x trials 
             pupil_avg_response_tmp{t} = squeeze(mean(EEG.data(1, 481:600, :), 2)); % time x trials 
             pupil_response{t} = squeeze(EEG.data(1, :, :)); % time x trials
-            
-            
-            
+       
             
             % determine reaction time for each trial
             epoch_event=zeros(size(EEG.event, 2), 3);
@@ -99,6 +97,8 @@ for grp = 1:2
             pupil_avg_single_trial{grp, 1}{count} = [pupil_avg_response_tmp{1}; pupil_avg_response_tmp{2}];
             pupil_avg_single_trial{grp, 2}{count} = [pupil_avg_response_tmp{3}; pupil_avg_response_tmp{4}];
             
+            number_of_epochs{grp, 1}(count) = size([pupil_response{1}, pupil_response{2}], 2);
+            number_of_epochs{grp, 2}(count) = size([pupil_response{3}, pupil_response{4}], 2);
             
             %% data to create graph showing the association between pupillary response and reaction time
 %             pupil_response{t} = squeeze(EEG.data(1, :, :)); % time x trials
@@ -145,11 +145,12 @@ for grp = 1:2
 end
 
 %% save variable
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability');
 % save std_pupil_avg_response std_pupil_avg_response
 % save std_pupil std_pupil
 % 
 % save pupil_avg_response pupil_avg_response
-
+save number_of_epochs number_of_epochs
 
 %% plot data sorted by reaction time
 
