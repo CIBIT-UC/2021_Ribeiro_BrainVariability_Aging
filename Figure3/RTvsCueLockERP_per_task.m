@@ -193,6 +193,7 @@ plot_data_all_electrodes(coeff_robust_chan{1, 1}, coeff_robust_chan{2, 1}, 'Pear
 plot_data_all_electrodes(coeff_robust_chan{1, 2}, coeff_robust_chan{2, 2}, 'Pearson r', 'Go/no-go')
 
 %% plot C5 plot_all_data_2groups(data_grp1, data_grp2, y_label_text, title_text)
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 load coeff_robust_chan; load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 % coeff_robust_chan {grp, task}(part, chan)
 for c = 1:size(chanlocs_EEGChanOnly, 1)
@@ -593,7 +594,7 @@ end
     function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot zero line
     plot(0:4, zeros(1,5), '--k'); hold on
@@ -647,7 +648,7 @@ end
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.YAxis.FontSize = 18;
     ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';

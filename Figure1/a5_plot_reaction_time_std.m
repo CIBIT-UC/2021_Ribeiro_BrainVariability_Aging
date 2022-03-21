@@ -26,7 +26,7 @@ plot_all_data_onetask(YoungerGroup_G_RT(:, 3)./YoungerGroup_G_RT(:, 2), OlderGro
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot data for group 1
     yMean1=nanmean(data_grp1_task1);
@@ -76,8 +76,8 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     % axes('XColor','none');
     hold off;
     axis([0 3 -inf inf]);
-    ax = gca;
-    c = ax.Color;
+    ax = gca; %c = ax.Color;
+    ax.LineWidth = 2.5;
     ax.YAxis.FontSize = 18;
     ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';
@@ -88,8 +88,8 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     
 %     x0=10;
 %     y0=10;
-%     width=400;
-%     height=400;
+%     width=300;
+%     height=200;
 %     set(gcf,'position',[x0,y0,width,height])
 end
 

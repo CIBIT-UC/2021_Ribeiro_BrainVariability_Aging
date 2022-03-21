@@ -9,19 +9,18 @@ load_dir = 'G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_
 load([load_dir 'ERP_avg_amp_stdev_young']);
 load([load_dir 'ERP_avg_amp_stdev_older']);
 
-
 % load PSD fooof variables for regression - FCz fitting with 4 peaks
 % calculated in foof_analysis_power_spectrum_FCz_thresh1_4pks
 table_dir = 'G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\pre-stimulus_alpha\three_seconds_baseline_power_spectra\';
 filename = 'foof_results_FCz_thresh1_width8_4pks.xlsx';
 T = readtable([table_dir filename]);
-% exclude outliers with R2 z-score (calculated in the fisher r-to-z
-% transformed) >2.5
-outliers_young = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==1))>2.5);
-outliers_older = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==2))>2.5);
-T(abs(T.zscore_fisherR2Z_simpleRT)>2.5, :) = [];
-ERP_avg_amp_stdev_young(:, outliers_young, :) = [];
-ERP_avg_amp_stdev_older(:, outliers_older, :) = [];
+% % exclude outliers with R2 z-score (calculated in the fisher r-to-z
+% % transformed) >2.5
+% outliers_young = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==1))>2.5);
+% outliers_older = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==2))>2.5);
+% T(abs(T.zscore_fisherR2Z_simpleRT)>2.5, :) = [];
+% ERP_avg_amp_stdev_young(:, outliers_young, :) = [];
+% ERP_avg_amp_stdev_older(:, outliers_older, :) = [];
 
 % variable to save excel file with residuals
 T_values = T.group;

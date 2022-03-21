@@ -204,6 +204,7 @@ for grp = 1:2
 end
 
 %% save variable
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability')
 % save coeff_robust_pupilBsln_RT coeff_robust_pupilBsln_RT
 % save coeff_robust_pupilBsln_cos coeff_robust_pupilBsln_cos
 save coefs_phase_timeontask_RT coefs_phase_timeontask_RT
@@ -221,7 +222,7 @@ plot_all_data_2tasks(coeff_robust_pupilBsln_RT{1,1}, coeff_robust_pupilBsln_RT{1
     coeff_robust_pupilBsln_RT{2, 1}, coeff_robust_pupilBsln_RT{2, 2}, 'Correlation \itr');
 
 %% within-subject correlation between pupil baseline and cos angle
-load coeff_robust_pupilBsln_RT
+% load coeff_robust_pupilBsln_RT
 plot_all_data_2tasks(coeff_robust_pupilBsln_cos{1,1}, coeff_robust_pupilBsln_cos{1, 2},...
    coeff_robust_pupilBsln_cos{2, 1}, coeff_robust_pupilBsln_cos{2, 2}, 'Correlation \itr');
 
@@ -242,6 +243,8 @@ p_value = cell(2, 2); stats = cell(2, 2);
 [h,p_value{2,2},ci,stats{2,2}] = ttest(coeff_robust_pupilresidphase_RT{2,2})
 
 [h,p_value_all,ci,stats_all] = ttest([coeff_robust_pupilresidphase_RT{1,2}, coeff_robust_pupilresidphase_RT{2,2}])
+
+[h,p_value_grp,ci,stats_grp] = ttest2(coeff_robust_pupilresidphase_RT{1,2}, coeff_robust_pupilresidphase_RT{2,2})
 
 
 %% comparison between correlation coefficients with and without adjustment for ongoing slow fluctuations
@@ -279,10 +282,14 @@ plot_all_data_2tasks(coeff_robust_pupilBsln_TPRresid{1,1}, coeff_robust_pupilBsl
     coeff_robust_pupilBsln_TPRresid{2, 1}, coeff_robust_pupilBsln_TPRresid{2, 2}, 'Correlation r');
 
 %% within-subject correlation between pupil baseline phase (cos, sin) and RT
-% load coefs_phase_RT
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability');
+load coefs_phase_RT % coef1 = cos, coef2 = sin
 for coef = 1:3
     plot_all_data_2tasks(coefs_phase_RT{1, 1}(:, coef), coefs_phase_RT{1, 2}(:, coef),...
         coefs_phase_RT{2, 1}(:, coef), coefs_phase_RT{2, 2}(:, coef), 'Coefficient');
+    
+    % plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
+    plot_all_data_onetask(coefs_phase_RT{1, 2}(:, coef), coefs_phase_RT{2, 2}(:, coef), 'Coefficients')
 end
 
 
@@ -295,6 +302,12 @@ end
 [h,p_value,ci,stats] = ttest(coefs_phase_RT{1, 2}(:, 2))
 [h,p_value,ci,stats] = ttest(coefs_phase_RT{2, 1}(:, 2))
 [h,p_value,ci,stats] = ttest(coefs_phase_RT{2, 2}(:, 2))
+
+[h,p_value,ci,stats] = ttest2(coefs_phase_RT{1, 2}(:, 1), coefs_phase_RT{2, 2}(:, 1))
+[h,p_value,ci,stats] = ttest2(coefs_phase_RT{1, 2}(:, 2), coefs_phase_RT{2, 2}(:, 2)) 
+
+[h,p_value,ci,stats] = ttest([coefs_phase_RT{1, 2}(:, 1); coefs_phase_RT{2, 2}(:, 1)])
+[h,p_value,ci,stats] = ttest([coefs_phase_RT{1, 2}(:, 2); coefs_phase_RT{2, 2}(:, 2)])
 
 
 %% within-subject correlation between pupil baseline phase (cos, sin) and RT controlling for time-on-task
@@ -628,7 +641,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     plot([0 3], [0 0], '--k'); % line at zero
     hold on
     % plot data for group 1
@@ -680,7 +693,7 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.YAxis.FontSize = 18;
     ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';

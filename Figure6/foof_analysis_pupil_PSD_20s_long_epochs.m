@@ -3,6 +3,7 @@
 clear; close all
 % load data - data were calculated here:
 % G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability\pupil_spectrum_long_epochs.m
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability\');
 load Pupil_PSD_20s_epochs_Young; load Pupil_PSD_20s_epochs_Older; load Frequencies_20s_epochs;
 Frequencies = Frequencies_20s_epochs;
 % avg power spectrum across runs of same task condition
@@ -16,7 +17,7 @@ PSD_per_condition_older(1, :, :) = Pupil_PSD_20s_epochs_Older(1, :, :);
 PSD_per_condition_older(2, :, :) = mean(Pupil_PSD_20s_epochs_Older(2:3, :, :), 1);
 PSD_per_condition_older(3, :, :) = mean(Pupil_PSD_20s_epochs_Older(4:5, :, :), 1);
 
-% fooof analyses
+%% fooof analyses
 % best settings to avoid overfitting:
 % https://fooof-tools.github.io/fooof/auto_tutorials/plot_07-TroubleShooting.html#sphx-glr-auto-tutorials-plot-07-troubleshooting-py
 % 
@@ -398,9 +399,8 @@ function plot_spectrum_mean_std_young_older(data_young, data_older, frequencies,
     hold on
     jbfill(x_axis', (mean_data_older+se_data_older), (mean_data_older-se_data_older),'r','r', 0.1)
     hold off
-    ax = gca;
-    % c = ax.Color;
-    % legend('Detection', 'GNG')
+    box off
+    ax = gca; ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';
@@ -621,7 +621,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot data for group 1
     yMean1=nanmean(data_grp1_task1);
@@ -672,7 +672,7 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.YAxis.FontSize = 18;
     ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';

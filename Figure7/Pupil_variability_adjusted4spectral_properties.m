@@ -43,7 +43,7 @@ for task = 2 % go/no-go
     scatter_and_corr(X(T.group==1), Y(T.group==1), 'PD SD', 'PSD exponent', 'Young', 1, -inf)
     scatter_and_corr(X(T.group==2), Y(T.group==2), 'PD SD', 'PSD exponent', 'Older', 1, -inf)
 end
-%%
+%
 %%plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 plot_all_data_2tasks(Res(T.group==1, 1), Res(T.group==1, 2),...
     Res(T.group==2, 1), Res(T.group==2, 2), 'PD variability residuals')
@@ -285,7 +285,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot line at zero
     plot([0 3], [0 0], '--k');
@@ -339,7 +339,7 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -.035 .04]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.YAxis.FontSize = 18;
     ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';

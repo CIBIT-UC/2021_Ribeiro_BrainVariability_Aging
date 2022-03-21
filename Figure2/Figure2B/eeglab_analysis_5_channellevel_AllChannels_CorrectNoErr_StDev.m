@@ -422,7 +422,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot data for group 1
     yMean1=nanmean(data_grp1_task1);
@@ -473,7 +473,7 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; %c = ax.Color;
     ax.YAxis.FontSize = 24;
     ax.XAxis.FontSize = 32;
     ax.FontName = 'Arial';

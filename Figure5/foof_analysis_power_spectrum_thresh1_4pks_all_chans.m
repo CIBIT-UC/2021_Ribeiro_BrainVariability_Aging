@@ -152,7 +152,7 @@ save number_peaks_older number_peaks_older
 
 %% exclude outliers where the fittign wasn't so good - for each channel find participants where R2 zscore > 2.5
 % change data for NAN - data in paper including all data points - outliers
-% only excluded in correlation analyses with FCz
+% only excluded in correlation analyses
 cd 'G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\pre-stimulus_alpha\fooof_all_channels';
 load r_squared_error_older % (task, p, chan, r2 and error)
 load r_squared_error_young
@@ -185,27 +185,34 @@ load oscillations_power_young; load oscillations_power_older
 % end
 
 
-% for task = 1:3
-%     for chan = 1:59
-%         R2_transf_young = squeeze(fisherz(sqrt(r_squared_error_young(task, :, chan, 1))));
-%         outliers_young{task, chan} = find(abs(zscore(R2_transf_young)) > 2.5); % outliers
+for task = 1:3
+    for chan = 1:59
+        R2_transf_young(:, chan) = squeeze(fisherz(sqrt(r_squared_error_young(task, :, chan, 1))));
+%         outliers_young{task, chan} = find(abs(zscore(R2_transf_young)) > 3); % outliers
 %         incl_young{task, chan} = find(abs(zscore(R2_transf_young)) <= 2.5); % without outliers
 %         %exponent_young(task, p, chan)
 %         exponent_young(task, outliers_young{task, chan}, chan) = NaN;
 %         offset_young(task, outliers_young{task, chan}, chan) = NaN;
 %         oscillations_power_young(task, outliers_young{task, chan}, chan, :) = NaN;
-%         
-%         
-%         R2_transf_older = squeeze(fisherz(sqrt(r_squared_error_older(task, :, chan, 1))));
-%         outliers_older{task, chan} = find(abs(zscore(R2_transf_older)) > 2.5); % outliers
+        
+        
+        R2_transf_older(:, chan) = squeeze(fisherz(sqrt(r_squared_error_older(task, :, chan, 1))));
+%         outliers_older{task, chan} = find(abs(zscore(R2_transf_older)) > 3); % outliers
 %         incl_older{task, chan} = find(abs(zscore(R2_transf_older)) <= 2.5);
 %         exponent_older(task, outliers_older{task, chan}, chan) = NaN;
 %         offset_older(task, outliers_older{task, chan}, chan) = NaN;
 %         oscillations_power_older(task, outliers_older{task, chan}, chan, :) = NaN;
 %         
-%     end
-% end
-
+    end
+    
+    zscoreR2_young(task, :, :) = zscore(R2_transf_young, 0, 'all');
+    zscoreR2_older(task, :, :) = zscore(R2_transf_older, 0, 'all');
+    [index_part_older{task}, index_chan_older{task}] = find(abs(zscore(R2_transf_older)) > 3);
+    outliers_older{task} = unique(index_part_older{task});
+    [index_part_young{task}, index_chan_young{task}] = find(abs(zscore(R2_transf_young)) > 3);
+    outliers_young{task} = unique(index_part_young{task});
+    
+end
 
 %% display topography of various variables
 cd 'G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\pre-stimulus_alpha\fooof_all_channels';
@@ -301,7 +308,7 @@ end
 
 %% stats permutation
 load offset_young; load offset_older; 
-for task = 1:3
+for task = 3%1:3
      [pval_t2(task, :), t_orig_t2(task, :), crit_t_t2(task, :), est_alpha, seed_state] = mult_comp_perm_t2(squeeze(offset_young(task, :, :)), squeeze(offset_older(task, :, :)));
 
 %     figure;
@@ -370,7 +377,7 @@ end
 
 %% stats 
 load oscillations_power_young; load oscillations_power_older % not excluding outliers
-for freq_band = 2 % band 1 = theta; 2 = alpha; 3 = beta
+for freq_band = 3 % band 1 = theta; 2 = alpha; 3 = beta
     for task = 3%1:3        
          [pval_t2(task, :), t_orig_t2(task, :), crit_t_t2(task, :), est_alpha, seed_state] = mult_comp_perm_t2(squeeze(oscillations_power_young(task, :, :, freq_band)), squeeze(oscillations_power_older(task, :, :, freq_band)));
 
@@ -441,7 +448,7 @@ chan = 16;
 % plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 plot_all_data_onetask(exponent_young(3, :, chan), exponent_older(3, :, chan), 'Exponent')
 plot_all_data_onetask(offset_young(3, :, chan), offset_older(3, :, chan), 'Offset')
-%%
+%
 % change zeros in power to NaN for graphs and SPSS stats
 % oscillations_power_older(task, p, chan, freq band) 
 oscillations_power_young(oscillations_power_young == 0) = NaN;
@@ -780,7 +787,7 @@ function plot_spectrum_mean_std_young_older(data_young, data_older, frequencies,
     % color simple RT older =  [.75 0.25 0]
 
     x_axis = frequencies(frequencies <= max_freq2plot); % frequencies
-    figure;
+    figure; box off;
     % % plot a line at zero
     % plot([0 0],[0 11], '--', 'color', [0 0 0]);
     % hold on
@@ -796,9 +803,9 @@ function plot_spectrum_mean_std_young_older(data_young, data_older, frequencies,
     hold on
     jbfill(x_axis', (mean_data_older+se_data_older), (mean_data_older-se_data_older),'r','r', 0.1)
     hold off
+    box off;
     ax = gca;
-    % c = ax.Color;
-    % legend('Detection', 'GNG')
+    ax.LineWidth = 2.5; 
     ax.FontSize = 28;
     ax.FontName = 'Arial';
     ax.Color = 'none';
@@ -1019,7 +1026,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % delete nan from data
     data_grp1_task1(isnan(data_grp1_task1)) = [];
@@ -1074,14 +1081,14 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
-    ax.YAxis.FontSize = 18;
-    ax.XAxis.FontSize = 28;
+    ax.LineWidth = 2.5; 
+    ax.YAxis.FontSize = 24;
+    ax.XAxis.FontSize = 32;
     ax.FontName = 'Arial';
     ax.Color = 'none';
     ax.XTickLabel= {'Young' 'Older'};
     xticks([1 2])
-    ylabel(y_label_text, 'FontSize', 28, 'FontWeight','normal')
+    ylabel(y_label_text, 'FontSize', 40, 'FontWeight','normal')
     
 %     x0=10;
 %     y0=10;

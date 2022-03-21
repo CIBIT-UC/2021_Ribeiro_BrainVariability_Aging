@@ -13,7 +13,7 @@ older_eeg=[7   8	11	12	14	17	19	20	21	22	23	32	35	37	38	41	43	47	48	49	52	55	57	
 
 group = {young_eeg, older_eeg};
 task={'D1', 'D2', 'G1', 'G2'};
-
+number_of_trials_eeg = {};
 % open eeglab
 [ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
 
@@ -30,7 +30,7 @@ for grp = 1:2
 
         % create variable with data electrodes X time frames X trials -
         % starting at cue onset
-        ERPs= {}; RT_incl = {};
+        ERPs= {}; RT_incl = {}; number_of_trials = [];
        for t = 1:4
            % clear eeglab
             STUDY = []; CURRENTSTUDY = 0; ALLEEG = []; EEG=[]; CURRENTSET=[];
@@ -104,6 +104,7 @@ for grp = 1:2
             error_trials=cat(1, misses, multiple_responses, response2cue, slow_responses, response2nogo);
             % only correct go trials, excluding trials after error
             include_epochs = setdiff(correct_trial, error_trials+1);
+            number_of_trials(t) = length(include_epochs);
             EEG = pop_select( EEG, 'trial',include_epochs);
             cnt = 0;
             for inc = include_epochs'
@@ -117,6 +118,7 @@ for grp = 1:2
            ERPs{t} = squeeze(mean(EEG.data(1:59, 600:850, :), 2)); % chan X trials       
        end 
        
+       number_of_trials_eeg{grp}(part, :) = [number_of_trials(1)+number_of_trials(2), number_of_trials(3)+number_of_trials(4)];
          %% create variables ERP ampltiude and ERP std for each channel
 
          % tasks: simple RT (runs 1 and 2) and gng (runs 3 and 4)
@@ -127,17 +129,24 @@ for grp = 1:2
     
     end
 end
-
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
+save number_of_trials_eeg number_of_trials_eeg
 save ERP_amp ERP_amp
 save ERP_std ERP_std
 
-%% plot FCz data
-% plot_all_data_2groups(data_grp1, data_grp2, y_label_text, title_text)
-load ERP_amp; load ERP_std
-
-
-
+% compare number of trials across groups
+for task =1:2
+    [h,p,ci,stats] = ttest2(number_of_trials_eeg{1}(:, task), number_of_trials_eeg{2}(:, task))
+    mean_trials(1, task) = mean(number_of_trials_eeg{1}(:, task));
+    sd_trials(1, task) = std(number_of_trials_eeg{1}(:, task));
+    mean_trials(2, task) = mean(number_of_trials_eeg{2}(:, task));
+    sd_trials(2, task) = std(number_of_trials_eeg{2}(:, task));
+end
+%% compare CNV amplitude and variability across groups
 % stats using permutation method
+% open eeglab
+[ALLEEG EEG CURRENTSET ALLCOM] = eeglab;
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 load ERP_amp; load ERP_std
 for task = 1:2
     [pval_amp(task, :), t_orig_amp(task, :), crit_t_amp(task, :), est_alpha, seed_state]=mult_comp_perm_t2(ERP_amp{1, task},ERP_amp{2, task});

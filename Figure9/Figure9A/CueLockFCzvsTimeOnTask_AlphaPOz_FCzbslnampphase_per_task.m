@@ -289,7 +289,7 @@ function plot_all_data_2groups(data_grp1, data_grp2, y_label_text, title_text)
 %   units. The x and y elements determine the location and the w and h
 %   elements determine the size. The function plots into the current axes
 %   without clearing existing content from the axes.
-    box on
+    box off
     rectangle('Position',[1-0.3,yMean-y_se, 0.6, 2*y_se ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
     hold on
     for y=1:length(data_grp1)
@@ -320,9 +320,17 @@ function plot_all_data_2groups(data_grp1, data_grp2, y_label_text, title_text)
 
     % axes('XColor','none');
     hold off;
-    axis([0 3 -inf inf]);
+    if strcmp(title_text, 'Run')
+        axis([0 3 -inf 6]);
+    elseif strcmp(title_text, 'Time-on-task')
+        axis([0 3 -inf .2]);
+    elseif strcmp(title_text, 'Alpha power')
+        axis([0 3 -inf 10]);
+    else
+        axis([0 3 -inf inf]);
+    end
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';

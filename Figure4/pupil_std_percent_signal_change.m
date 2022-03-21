@@ -227,7 +227,8 @@ plot_data_mean_std_young_older(pupil_cuelocked_response{1, 1}, pupil_cuelocked_r
 plot_data_mean_std_young_older(pupil_cuelocked_response{1, 2}, pupil_cuelocked_response{2, 2}, '', 'Pupil response (%)')
 
 %%
-% load std_pupil_avg_response
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability');
+load std_pupil_avg_response; load pupil_avg_response;
 % plot_all_data_2tasks(std_pupil_avg_response{1,1}, std_pupil_avg_response{1, 2},...
 %     std_pupil_avg_response{2, 1}, std_pupil_avg_response{2, 2}, 'Pupil response SD');
 
@@ -522,7 +523,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % zero line
     plot([0 4], zeros(2, 1), 'k--');
@@ -576,7 +577,7 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.YAxis.FontSize = 24;
     ax.XAxis.FontSize = 32;
     ax.FontName = 'Arial';
