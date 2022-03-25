@@ -627,7 +627,7 @@ end
 %% correlation between erp and pupil response with and without adjustment
 title_txt = {'Simple RT' 'Go/no-go'}; adj_text = {'with adj' 'without adj'}; grp_txt = {'young', 'older'};
 clear pval_t2 t_orig_t2 crit_t_t2 sig_chans_all
-for adj = 1:2
+for adj = 2%1:2
     if adj == 1 % with adjustment
         load coeff_erp_pupil_phaseresid; % group x task
         coeffs = coeff_erp_pupil_phaseresid;
@@ -637,7 +637,7 @@ for adj = 1:2
     end
     clear pval_t1_all t_orig_t1_all crit_t_t1_all pval_t1 t_orig_t1 crit_t_t1
     clear pval_t1 t_orig_t1 crit_t_t1
-    for task = 1:2
+    for task = 2%1:2
         for grp = 1:2
             [pval_t1(grp, task, :), t_orig_t1(grp, task, :), crit_t_t1(grp, task, :),~,~]=mult_comp_perm_t1(coeffs{grp, task});
         end
@@ -647,7 +647,7 @@ for adj = 1:2
     load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
     title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
     for grp = 1:2
-        for task = []%2%1:2
+        for task = 2%[]%2%1:2  
 
             sig_t_values = zeros(1, 59);
             sig_t_values(t_orig_t1(grp, task, :) > crit_t_t1(grp, task, 2)) = 1;
@@ -680,7 +680,7 @@ for adj = 1:2
     
      % plot t-values
     load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
-
+    clear sig_chans_all
     for task = 2%1:2
         sig_t_values = zeros(1, 59);
         sig_t_values(t_orig_t2(adj, task, :) > crit_t_t2(adj, task, 2)) = 1;
@@ -706,6 +706,7 @@ for adj = 1:2
     end
     
     % testing with all participants together
+    clear pval_t1_all t_orig_t1_all crit_t_t1_all
     for task = 1:2
         [pval_t1_all(task, :), t_orig_t1_all(task, :), crit_t_t1_all(task, :),~,~]=mult_comp_perm_t1([coeffs{1, task}; coeffs{2, task}]);
     end
@@ -762,9 +763,9 @@ for task = 1:2
                 'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
     end
     topoplot(t_orig_effect_of_adj(task, :), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
-    caxis([-4 0]); c.Axis.FontSize = 16;
+%     caxis([-4 0]); c.Axis.FontSize = 16;
     colorbar;
-    colorbar('Ticks',[-4, -2,  0], 'FontSize', 26, 'FontWeight','normal');
+%     colorbar('Ticks',[-4, -2,  0], 'FontSize', 26, 'FontWeight','normal');
     colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
     title(title_txt{task}, 'FontSize', 30, 'FontWeight','normal')
     set(get(gca,'title'),'Position',[0,-.65, 0])
