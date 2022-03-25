@@ -21,7 +21,7 @@ for grp = 1:2
         STUDY = []; CURRENTSTUDY = 0; ALLEEG = []; EEG=[]; CURRENTSET=[];
              
         % erp data - dependent variable
-        eeg_directory = strcat('G:\ProjectAgingNeuromodulation\AuditoryResearch\AuditoryTask_EyeTracking_EEG_lab94\AB', num2str(p), '\EEG\');
+        eeg_directory = strcat('L:\ProjectAgingNeuromodulation\AuditoryResearch\AuditoryTask_EyeTracking_EEG_lab94\AB', num2str(p), '\EEG\');
 
         % create variable with data electrodes X time frames X trials -
         % starting at cue onset
@@ -233,7 +233,7 @@ for grp = 1:2
      
     end
 end
-cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
+cd('L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 save coeff_robust_eegphaseresid coeff_robust_eegphaseresid % correlation coefficients RT vs ERP residuals
 save stats_mult_regrs stats_mult_regrs
 save coeffs_EEGphase_RT coeffs_EEGphase_RT % regression coefficients EEG bsln phase vs RT
@@ -258,7 +258,7 @@ end
 
 
 % plot  - t values
-load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+load L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Simple RT' 'Go/no-go'};
 for task = 1:2
     
@@ -285,6 +285,7 @@ end
 
 
 %% multiple regression eeg phase vs RT
+cd('L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 load coeffs_EEGphase_RT % grp task - part, chan, coeffs
 % coeffs_EEGphase_RT{grp, 1}(part, chan, :)
 task_name = {'Simple RT' 'Go/no-go'};
@@ -330,7 +331,7 @@ find(abs(pval_t1_all(2, 2, :)) < .05)
 
 % plot  - t values - one- sample t-test with all participants coefficients
 % against zero
-load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+load L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Simple RT' 'Go/no-go'}; clear sig_chans_std
 clear sig_chans_std
 for task = 2%1:2
@@ -434,7 +435,7 @@ for task = 1:2
 end
 
 % plot t-values from one sample t-test both groups together
-load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+load L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
 for task = 1:2
     
@@ -484,7 +485,7 @@ mean(stats_mult_regrs{1, 1}(:, :, 3), 1)
 %% plot C5 plot_all_data_2groups(data_grp1, data_grp2, y_label_text, title_text)
 % coeff_robust_erpresid_chan {grp, task}(part, chan)
 load coeff_robust_eegphaseresid; % correlation coefficients RT vs ERP residuals
-load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+load L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'simpleRT', 'go/no-go'};
 for c = 1:size(chanlocs_EEGChanOnly, 1)
     if strcmp(chanlocs_EEGChanOnly(c).labels, 'C5')
@@ -511,7 +512,7 @@ for task = 1:2
 end
 
 % plot t-values from one sample t-test both groups together
-load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+load L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
 for task = 1:2
     
@@ -556,7 +557,7 @@ end
 
 %% plot electrodes where correlation r different from zero - t values
 clear sig_chans
-load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+load L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Young - simple RT' 'Older - simple RT'; 'Young - go/no-go' 'Older - go/no-go'};
 for grp = 1:2
     for task = 1:2
@@ -691,7 +692,7 @@ end
     function [EEG] = interpol( EEG, chanlocs )
         % interpolation
         if nargin < 2
-            load('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs.mat');
+            load('L:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs.mat');
         end
 
         chans_eeg = [];
