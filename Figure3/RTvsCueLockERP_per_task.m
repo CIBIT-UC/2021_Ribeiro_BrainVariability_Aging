@@ -577,10 +577,11 @@ end
     hold on
     % plot(xaxis, zeros(1, 840), ':k')
     hold off
+    box off
     axis([0 2 -11 2]);
     % title('GNG', 'FontSize', 24, 'FontWeight','bold')
     % legend('RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'location', 'northwest')
-    ax = gca;
+    ax = gca; ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';

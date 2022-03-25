@@ -136,8 +136,8 @@ for grp = 1:2
             if length(EEG.chanlocs)<67 && p ~= 6 && p~=38 % these participants do not have eyetracking data but have all channels ok
                 [EEG] = interpol( EEG);
             end
-            % filter data low pass 4 Hz
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',4,'plotfreqz',0);
+            % filter data low pass 2 Hz
+            EEG = pop_eegfiltnew(EEG, 'hicutoff',2,'plotfreqz',0);
             % hilbert transform
             signal_phase = [];
             for chan = 1:59
@@ -159,8 +159,8 @@ for grp = 1:2
             if length(EEG.chanlocs)<67 && p ~= 6 && p~=38 % these participants do not have eyetracking data but have all channels ok
                 [EEG] = interpol( EEG);
             end
-            % filter data low pass 4 Hz
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',4,'plotfreqz',0);
+            % filter data low pass 2 Hz
+            EEG = pop_eegfiltnew(EEG, 'hicutoff',2,'plotfreqz',0);
             % hilbert transform
             signal_amplitude = [];
             for chan = 1:59
@@ -195,7 +195,6 @@ for grp = 1:2
                     end
                 end
            end
-        
        end 
        
        
@@ -354,15 +353,15 @@ for grp = 1:2
        % compare RT from eeg with RT from pupil data
        RT_diff{grp}{part} = [[RT_eeg{1}; RT_eeg{2}; RT_eeg{3}; RT_eeg{4}], [RT_pupil{1}; RT_pupil{2}; RT_pupil{3}; RT_pupil{4}], [RT_eeg{1}; RT_eeg{2}; RT_eeg{3}; RT_eeg{4}]-[RT_pupil{1}; RT_pupil{2}; RT_pupil{3}; RT_pupil{4}]];
        
-%        % correlate erp and pupil response before adjustment
-%        for chan = 1:size(ERPs{1}, 1)
-%            % simple RT
-%             [r,~,~,~,~,~] = skipped_correlation([ERPs{1}(chan, :)'; ERPs{2}(chan, :)'], [pupil_avg_response{1}; pupil_avg_response{2}],0);
-%             coeff_erp_pupil{grp, 1}(part, chan) = r.Pearson;
-%              % gng
-%             [r,~,~,~,~,~] = skipped_correlation([ERPs{3}(chan, :)'; ERPs{4}(chan, :)'], [pupil_avg_response{3}; pupil_avg_response{4}],0);
-%             coeff_erp_pupil{grp, 2}(part, chan) = r.Pearson;
-%        end
+       % correlate erp and pupil response before adjustment
+       for chan = 1:size(ERPs{1}, 1)
+           % simple RT
+            [r,~,~,~,~,~] = skipped_correlation([ERPs{1}(chan, :)'; ERPs{2}(chan, :)'], [pupil_avg_response{1}; pupil_avg_response{2}],0);
+            coeff_erp_pupil{grp, 1}(part, chan) = r.Pearson;
+             % gng
+            [r,~,~,~,~,~] = skipped_correlation([ERPs{3}(chan, :)'; ERPs{4}(chan, :)'], [pupil_avg_response{3}; pupil_avg_response{4}],0);
+            coeff_erp_pupil{grp, 2}(part, chan) = r.Pearson;
+       end
 %        
        
        %%
@@ -379,8 +378,8 @@ for grp = 1:2
             [coeff_rt_erp_phaseresid{grp, 1}(part, chan, :),~,~,~,stats_rt_erp_phaseresid{grp, 1}(part, chan, :)] = regress(y,x(:, [1 3]));
             % within-subject correlation between pupil response amplitude
             % residuals and ERP residuals
-%             [r,~,~,~,~,~] = skipped_correlation(Res_erp_simpleRT(:, chan), Res_pupil_simpleRT,0);
-%             coeff_erp_pupil_phaseresid{grp, 1}(part, chan) = r.Pearson;
+            [r,~,~,~,~,~] = skipped_correlation(Res_erp_simpleRT(:, chan), Res_pupil_simpleRT,0);
+            coeff_erp_pupil_phaseresid{grp, 1}(part, chan) = r.Pearson;
         end
         [coeff_rt_pupil_phaseresid{grp, 1}(part, :),~,~,~,stats_rt_pupil_phaseresid{grp, 1}(part, :)] = regress(y,x(:, [2 3]));
 
@@ -392,8 +391,8 @@ for grp = 1:2
             [coeff_rt_erp_phaseresid{grp, 2}(part, chan, :),~,~,~,stats_rt_erp_phaseresid{grp, 2}(part, chan, :)] = regress(y,x(:, [1 3]));
             % within-subject correlation between pupil response amplitude
             % residuals and ERP residuals
-%             [r,~,~,~,~,~] = skipped_correlation(Res_erp_gng(:, chan), Res_pupil_gng,0);
-%             coeff_erp_pupil_phaseresid{grp, 2}(part, chan) = r.Pearson;
+            [r,~,~,~,~,~] = skipped_correlation(Res_erp_gng(:, chan), Res_pupil_gng,0);
+            coeff_erp_pupil_phaseresid{grp, 2}(part, chan) = r.Pearson;
             if chan == 25
                 figure; plot(Res_erp_gng(:, chan), Res_pupil_gng, 'o');
             end
@@ -401,6 +400,7 @@ for grp = 1:2
         [coeff_rt_pupil_phaseresid{grp, 2}(part, :),~,~,~,stats_rt_pupil_phaseresid{grp, 2}(part, :)] = regress(y,x(:, [2 3]));
     end
 end
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 save coeff_rt_erp_pupil_phaseresid coeff_rt_erp_pupil_phaseresid
 save stats_rt_erp_pupil_phaseresid stats_rt_erp_pupil_phaseresid
 save coeff_rt_erp_phaseresid coeff_rt_erp_phaseresid
@@ -408,8 +408,8 @@ save stats_rt_erp_phaseresid stats_rt_erp_phaseresid
 save coeff_rt_pupil_phaseresid coeff_rt_pupil_phaseresid
 save stats_rt_pupil_phaseresid stats_rt_pupil_phaseresid
 
-% save coeff_erp_pupil_phaseresid coeff_erp_pupil_phaseresid
-% save coeff_erp_pupil coeff_erp_pupil
+save coeff_erp_pupil_phaseresid coeff_erp_pupil_phaseresid
+save coeff_erp_pupil coeff_erp_pupil
 
 %% check RT differences = sanity check = all ok
 % RT_diff{grp, part}
@@ -487,6 +487,7 @@ end
 
 
 %% check how much R2 of models change with including pupil in them
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 load stats_rt_pupil_phaseresid; load stats_rt_erp_phaseresid; load stats_rt_erp_pupil_phaseresid
 for grp = 1:2
     for task = 1:2

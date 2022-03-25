@@ -166,10 +166,10 @@ hold on
 jbfill(x_axis,MeanOlder+SEOlder,MeanOlder-SEOlder, 'r','r', 0.1)
 hold on
 plot(x_axis, zeros(length(x_axis), 1),'color', [0.5 0.5 0.5],'LineStyle', '--', 'LineWidth',1.5)
-
 hold off
+box off
 ax = gca;
-c = ax.Color;
+ax.LineWidth = 2.5; 
 % legend('Detection', 'GNG')
 ax.FontSize = 28;
 ax.FontName = 'Arial';
@@ -212,8 +212,9 @@ jbfill(x_axis,MeanOlder+SEOlder,MeanOlder-SEOlder,'r','r', 0.1)
 hold on
 plot(x_axis, zeros(length(x_axis), 1),'color', [0.5 0.5 0.5],'LineStyle', '--', 'LineWidth',1.5)
 hold off
+box off
 ax = gca;
-c = ax.Color;
+ax.LineWidth = 2.5; 
 % legend('GNG', 'GNG')
 ax.FontSize = 28;
 ax.FontName = 'Arial';

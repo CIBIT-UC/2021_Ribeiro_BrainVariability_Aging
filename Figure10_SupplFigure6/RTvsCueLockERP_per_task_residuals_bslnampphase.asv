@@ -133,8 +133,8 @@ for grp = 1:2
             if length(EEG.chanlocs)<67 && p ~= 6 && p~=38 % these participants do not have eyetracking data but have all channels ok
                 [EEG] = interpol( EEG);
             end
-            % filter data low pass 4 Hz
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',4,'plotfreqz',0);
+            % filter data low pass 2 Hz
+            EEG = pop_eegfiltnew(EEG, 'hicutoff',2,'plotfreqz',0);
             % hilbert transform
             signal_phase = [];
             for chan = 1:59
@@ -156,8 +156,8 @@ for grp = 1:2
             if length(EEG.chanlocs)<67 && p ~= 6 && p~=38 % these participants do not have eyetracking data but have all channels ok
                 [EEG] = interpol( EEG);
             end
-            % filter data low pass 4 Hz
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',4,'plotfreqz',0);
+            % filter data low pass 2 Hz
+            EEG = pop_eegfiltnew(EEG, 'hicutoff', 2,'plotfreqz',0);
             % hilbert transform
             signal_amplitude = [];
             for chan = 1:59
@@ -207,6 +207,7 @@ for grp = 1:2
            x = [[EEG_amplit_bsln{1}(chan, :)'; EEG_amplit_bsln{2}(chan, :)'].*cos([EEG_phase_bsln{1}(chan, :)'; EEG_phase_bsln{2}(chan, :)']),...
                [EEG_amplit_bsln{1}(chan, :)'; EEG_amplit_bsln{2}(chan, :)'].*sin([EEG_phase_bsln{1}(chan, :)'; EEG_phase_bsln{2}(chan, :)']), ones(length(DV), 1)];
            [coeffs_EEGphase_RT{grp, 1}(part, chan, :),~,~, ~, stats_mult_regrs{grp, 1}(part, chan, :)] = regress(DV, x);
+           
         end
 
         % gng
@@ -232,6 +233,7 @@ for grp = 1:2
      
     end
 end
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 save coeff_robust_eegphaseresid coeff_robust_eegphaseresid % correlation coefficients RT vs ERP residuals
 save stats_mult_regrs stats_mult_regrs
 save coeffs_EEGphase_RT coeffs_EEGphase_RT % regression coefficients EEG bsln phase vs RT
@@ -239,7 +241,6 @@ save erp_residuals_std erp_residuals_std
 save erp_residuals_avg erp_residuals_avg
 
 %% plot ERP residuals variability
-cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 load erp_residuals_std
 % plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 % chan FCz
@@ -297,7 +298,7 @@ for task = 1:2
         [pval_t2(task, :, coef), t_orig_t2(task, :, coef), crit_t_t2(task, :, coef),~,~] = mult_comp_perm_t2(squeeze(coeffs_EEGphase_RT{1, task}(:, :, coef)),squeeze(coeffs_EEGphase_RT{2, task}(:, :, coef)));
         [pval_t1_all(task, coef, :), t_orig_t1_all(task, coef, :), crit_t_t1_all(task, coef, :),~,~]=mult_comp_perm_t1([squeeze(coeffs_EEGphase_RT{1, task}(:, :, coef)); squeeze(coeffs_EEGphase_RT{2, task}(:, :, coef))]);
         
-        plot_data_all_electrodes(squeeze(coeffs_EEGphase_RT{1, task}(:, :, coef)), squeeze(coeffs_EEGphase_RT{2, task}(:, :, coef)), 'Regression Coeffs', ['Coef', num2str(coef), ' - ', task_name(task)])
+%         plot_data_all_electrodes(squeeze(coeffs_EEGphase_RT{1, task}(:, :, coef)), squeeze(coeffs_EEGphase_RT{2, task}(:, :, coef)), 'Regression Coeffs', ['Coef', num2str(coef), ' - ', task_name(task)])
     end
 end
 
@@ -320,14 +321,105 @@ min(abs(pval_t1_all(2, 1, :)))
 % gng
 % sine
 max(abs(t_orig_t1_all(2, 2, :)))
+max((t_orig_t1_all(2, 2, :)))
+min((t_orig_t1_all(2, 2, :)))
 min(abs(pval_t1_all(2, 2, :)))
 
 find(abs(pval_t1_all(2, 2, :)) < .05)
 
+
+% plot  - t values - one- sample t-test with all participants coefficients
+% against zero
+load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+title_txt = {'Simple RT' 'Go/no-go'}; clear sig_chans_std
+clear sig_chans_std
+for task = 2%1:2
+    for coef = 1:2
+        sig_t_values = zeros(1, 59);
+        sig_t_values(t_orig_t1_all(task, coef, :) > crit_t_t1_all(task, coef, 2)) = 1;
+        sig_t_values(t_orig_t1_all(task, coef, :) < crit_t_t1_all(task, coef, 1)) = 1;
+        sig_chan_number = find(sig_t_values == 1);
+
+        for x = 1:length(sig_chan_number)
+            sig_chans_std{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+        end
+
+        figure;
+        if ~isempty(sig_chan_number)
+            topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
+                    'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
+        end
+        topoplot(t_orig_t1_all(task, coef, :), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
+        Axis.FontSize = 16; caxis([-4 4]); 
+        colorbar;
+        colorbar('Ticks',[-4, -2, 0, 2, 4], 'FontSize', 30, 'FontWeight','normal');
+        colormap(crameri('imola'));
+    %     title(title_txt{task}, 'FontSize', 24, 'FontWeight','normal')
+    %     set(get(gca,'title'),'Position',[0,-.65, 0])
+    end
+end
+
+%% each group separate
+clear sig_chans_std
+for grp = 1:2
+    for task = 2%1:2
+        for coef = 1:2
+            sig_t_values = zeros(1, 59);
+            sig_t_values(t_orig_t1(grp, task, coef, :) > crit_t_t1(grp, task, coef, 2)) = 1;
+            sig_t_values(t_orig_t1(grp, task, coef, :) < crit_t_t1(grp, task, coef, 1)) = 1;
+            sig_chan_number = find(sig_t_values == 1);
+
+            for x = 1:length(sig_chan_number)
+                sig_chans_std{grp, task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+            end
+
+            figure;
+            if ~isempty(sig_chan_number)
+                topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
+                        'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
+            end
+            topoplot(t_orig_t1(grp, task, coef, :), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
+            Axis.FontSize = 16; caxis([-4 4]); 
+            colorbar;
+            colorbar('Ticks',[-4, -2, 0, 2, 4], 'FontSize', 30, 'FontWeight','normal');
+            colormap(crameri('imola'));
+        %     title(title_txt{task}, 'FontSize', 24, 'FontWeight','normal')
+        %     set(get(gca,'title'),'Position',[0,-.65, 0])
+        end
+    end
+end
+
+%% group comparisons
+clear sig_chans_std
+for task = 2%1:2
+    for coef = 1:2
+        sig_t_values = zeros(1, 59);
+        sig_t_values(t_orig_t2(task, :, coef) > crit_t_t2(task, 2, coef)) = 1;
+        sig_t_values(t_orig_t2(task, :, coef) < crit_t_t2(task, 1, coef)) = 1;
+        sig_chan_number = find(sig_t_values == 1);
+
+        for x = 1:length(sig_chan_number)
+            sig_chans_std{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+        end
+
+        figure;
+        if ~isempty(sig_chan_number)
+            topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
+                    'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
+        end
+        topoplot(squeeze(t_orig_t2(task, :, coef)), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
+        Axis.FontSize = 16; caxis([-2 2]); 
+        colorbar;
+        colorbar('Ticks',[-2, -1, 0, 1, 2], 'FontSize', 30, 'FontWeight','normal');
+        colormap(crameri('imola'));
+    %     title(title_txt{task}, 'FontSize', 24, 'FontWeight','normal')
+    %     set(get(gca,'title'),'Position',[0,-.65, 0])
+    end
+end
+
 %% compare coefficients without adjustment with adjustment
 % load coefficients correlation CNV vs RT 
 load coeff_robust_chan; % calculated in :\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability\RTvsCueLockERP_per_task.m
-
 load coeff_robust_eegphaseresid; % correlation coeffieint CNV adjusted for baseline fluctuations vs RT
 for task = 1:2
     for grp = 1:2
@@ -709,7 +801,7 @@ end
 function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 
     % plot data for young group - simple RT and go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot data for group 1
     yMean1=nanmean(data_grp1_task1); yMean2=nanmean(data_grp1_task2);
@@ -768,7 +860,7 @@ function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1,
     hold off;
     axis([0 6 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';

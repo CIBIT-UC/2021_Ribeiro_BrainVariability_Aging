@@ -310,6 +310,7 @@ end
 
 
 %% variability of PD responses after regressing out the effect of ongoing signal fluctuations
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability');
 load pupil_resd_phase_std
 
 plot_all_data_2tasks(pupil_resd_phase_std{1,1}', pupil_resd_phase_std{1, 2}',...
@@ -628,7 +629,7 @@ end
 function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 
     % plot data for young group - go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     plot([0 3], [0 0], '--k'); % line at zero
     hold on
     % plot data for group 1
@@ -680,7 +681,7 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     hold off;
     axis([0 3 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.YAxis.FontSize = 18;
     ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';

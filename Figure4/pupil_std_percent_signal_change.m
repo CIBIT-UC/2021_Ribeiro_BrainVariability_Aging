@@ -148,9 +148,9 @@ end
 cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability');
 % save std_pupil_avg_response std_pupil_avg_response
 % save std_pupil std_pupil
-% 
+save pupil_cuelocked_response
 % save pupil_avg_response pupil_avg_response
-save number_of_epochs number_of_epochs
+% save number_of_epochs number_of_epochs
 
 %% plot data sorted by reaction time
 
@@ -222,6 +222,8 @@ writetable(T,filename,'Sheet',1,'Range','A1')
 
 %% figures
 % plot pupillary responses for both groups both tasks
+% cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability');
+% load pupil_cuelocked_response
 % plot_data_mean_std_young_older(data_young, data_older, graph_title, y_axis_label)
 plot_data_mean_std_young_older(pupil_cuelocked_response{1, 1}, pupil_cuelocked_response{2, 1}, 'Simple RT', 'Pupil response (%)')
 plot_data_mean_std_young_older(pupil_cuelocked_response{1, 2}, pupil_cuelocked_response{2, 2}, '', 'Pupil response (%)')
@@ -442,7 +444,8 @@ jbfill(x_axis, mean_data_older+se_data_older, mean_data_older-se_data_older,'r',
 hold on
 plot(x_axis, zeros(length(x_axis), 1), '--k')
 hold off
-ax = gca;
+box off
+ax = gca; ax.LineWidth = 2.5; 
 % c = ax.Color;
 % legend('Detection', 'GNG')
 ax.FontSize = 24;
@@ -505,10 +508,11 @@ function plot_quintiles(data, title_text)
     hold on
     % plot(xaxis, zeros(1, 840), ':k')
     hold off
+    box off
     axis([0 2 -.005 .07]);
     % title('GNG', 'FontSize', 24, 'FontWeight','bold')
     % legend('RT1', 'RT2', 'RT3', 'RT4', 'RT5', 'location', 'northwest')
-    ax = gca;
+    ax = gca; ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';
