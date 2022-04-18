@@ -233,7 +233,8 @@ for coef = 1:5
 end
 
 %% plot model Rsquared
-% load pupil_model_rsquared
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability')
+load pupil_modelbslnamp_rsquared_gng
 % plot_all_data_2groups(data_grp1, data_grp2, y_label_text)
 plot_all_data_2groups(pupil_model_rsquared{1}(:, 1), pupil_model_rsquared{2}(:,1),'Model R squared', '')
 
@@ -256,6 +257,11 @@ mean(rsquared_withoutsintheta{1}(:, 1))
 std(rsquared_withoutsintheta{1}(:, 1))
 mean(rsquared_withoutsintheta{2}(:, 1))
 std(rsquared_withoutsintheta{2}(:, 1))
+
+%~ plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
+plot_all_data_2tasks(pupil_model_rsquared{1}(:, 1), rsquared_withoutsintheta{1}(:, 1),...
+    pupil_model_rsquared{2}(:,1), rsquared_withoutsintheta{2}(:, 1),  'Model \itR\rm2')
+
 %% graph of correlation across independent variables
 % plot_all_data_2groups(R_alpha_pupil_young(:, 1), R_alpha_pupil_older(:, 1), 'Correlation r','Alpha - time-on-task')
 % 
@@ -336,6 +342,84 @@ function plot_all_data_2groups(data_grp1, data_grp2, y_label_text, title_text)
 %     xticks([1 2])
     ylabel(y_label_text, 'FontSize', 32, 'FontWeight','normal')
     title(title_text, 'FontSize', 32, 'FontWeight','normal')
+    
+%     x0=10;
+%     y0=10;
+%     width=400;
+%     height=400;
+%     set(gcf,'position',[x0,y0,width,height])
+end
+
+% function to plot all data points 2 tasks 2 groups
+function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
+
+    % plot data for young group - simple RT and go/nogo task
+    figure; box off; hold on
+    
+    % plot data for group 1
+    yMean1=nanmean(data_grp1_task1); yMean2=nanmean(data_grp1_task2);
+    y_se1 = nanstd(data_grp1_task1)/sqrt(length(data_grp1_task1)); y_se2 = nanstd(data_grp1_task2)/sqrt(length(data_grp1_task2));
+    
+    %plot the mean+-SEM box
+    %   RECTANGLE('Position',pos) creates a rectangle in 2-D coordinates.
+    %   Specify pos as a four-element vector of the form [x y w h] in data
+    %   units. The x and y elements determine the location and the w and h
+    %   elements determine the size. The function plots into the current axes
+    %   without clearing existing content from the axes.
+    rectangle('Position',[1-0.3,yMean1-y_se1, 0.6, 2*y_se1 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    rectangle('Position',[2-0.3,yMean2-y_se2, 0.6, 2*y_se2 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    
+    for y=1:length(data_grp1_task1)
+        plot([1 2]+rand*0.2-0.1, [data_grp1_task1(y) data_grp1_task2(y)] ,'-o', 'color', [.8 .8 .8], ...
+            'MarkerFaceColor',[.8 .8 .8], 'MarkerEdgeColor','k','MarkerSize',8, 'LineWidth', 1);
+        hold on;
+    end
+
+    %plot the mean line
+    plot([1 2 ],[yMean1 yMean2] ,'Color','k','LineWidth',1.5);
+    plot([1-0.3 1+0.3],[yMean1 yMean1] ,'Color','k','LineWidth',5);
+    plot([2-0.3 2+0.3],[yMean2 yMean2] ,'Color','k','LineWidth',5);
+    
+    
+    % group 2
+        yMean1=nanmean(data_grp2_task1); yMean2=nanmean(data_grp2_task2);
+    y_se1 = nanstd(data_grp2_task1)/sqrt(length(data_grp2_task1)); y_se2 = nanstd(data_grp2_task2)/sqrt(length(data_grp2_task2));
+    
+    %plot the mean+-SEM box
+    %   RECTANGLE('Position',pos) creates a rectangle in 2-D coordinates.
+    %   Specify pos as a four-element vector of the form [x y w h] in data
+    %   units. The x and y elements determine the location and the w and h
+    %   elements determine the size. The function plots into the current axes
+    %   without clearing existing content from the axes.
+    rectangle('Position',[4-0.3,yMean1-y_se1, 0.6, 2*y_se1 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    rectangle('Position',[5-0.3,yMean2-y_se2, 0.6, 2*y_se2 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    
+    for y=1:length(data_grp2_task1)
+        plot([4 5]+rand*0.2-0.1, [data_grp2_task1(y) data_grp2_task2(y)] ,'-o', 'color', [1 .5 .5], ...
+            'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',8, 'LineWidth', 1.5);
+        hold on;  
+    end
+
+     %plot the mean line
+    plot([4 5],[yMean1 yMean2] ,'Color','k','LineWidth',1.5);
+    plot([4-0.3 4+0.3],[yMean1 yMean1] ,'Color','k','LineWidth',5);
+    plot([5-0.3 5+0.3],[yMean2 yMean2] ,'Color','k','LineWidth',5);
+    
+    % plot line on zero
+    plot([0 6], zeros(2, 1), '--k')
+    
+
+    % axes('XColor','none');
+    hold off;
+    axis([0 6 -inf inf]);
+    ax = gca;
+    ax.LineWidth = 2.5;
+    ax.FontSize = 24;
+    ax.FontName = 'Arial';
+    ax.Color = 'none';
+    ax.XTickLabel=[];
+    xticks([1 2 4 5])
+    ylabel(y_label_text, 'FontSize',32, 'FontWeight','normal')
     
 %     x0=10;
 %     y0=10;

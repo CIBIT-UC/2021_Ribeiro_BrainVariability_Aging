@@ -133,8 +133,8 @@ for grp = 1:2
             if length(EEG.chanlocs)<67 && p ~= 6 && p~=38 % these participants do not have eyetracking data but have all channels ok
                 [EEG] = interpol( EEG);
             end
-            % filter data low pass 4 Hz
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',4,'plotfreqz',0);
+            % filter data low pass 2 Hz
+            EEG = pop_eegfiltnew(EEG, 'hicutoff', 2,'plotfreqz',0);
             % hilbert transform
             signal_phase = [];
             for chan = 1:59
@@ -156,8 +156,8 @@ for grp = 1:2
             if length(EEG.chanlocs)<67 && p ~= 6 && p~=38 % these participants do not have eyetracking data but have all channels ok
                 [EEG] = interpol( EEG);
             end
-            % filter data low pass 4 Hz
-            EEG = pop_eegfiltnew(EEG, 'hicutoff',4,'plotfreqz',0);
+            % filter data low pass 2 Hz
+            EEG = pop_eegfiltnew(EEG, 'hicutoff',2,'plotfreqz',0);
             % hilbert transform
             signal_amplitude = [];
             for chan = 1:59
@@ -199,9 +199,9 @@ for grp = 1:2
          DV = [RT_incl{1}; RT_incl{2}];
         for chan = 1:size(ERPs{1}, 1) 
             IV = Res_simpleRT(:, chan);
-%             [r,t,h,outid,hboot,CI] = skipped_correlation(IV,DV,1);
-            [r,~,~,~,~,~] = skipped_correlation(IV,DV,0);
-            coeff_robust_eegphaseresid{grp, 1}(part, chan) = r.Pearson;
+% %             [r,t,h,outid,hboot,CI] = skipped_correlation(IV,DV,1);
+%             [r,~,~,~,~,~] = skipped_correlation(IV,DV,0);
+%             coeff_robust_eegphaseresid{grp, 1}(part, chan) = r.Pearson;
            
            % correlate phase of ongoing signal and RT 
            x = [[EEG_amplit_bsln{1}(chan, :)'; EEG_amplit_bsln{2}(chan, :)'].*cos([EEG_phase_bsln{1}(chan, :)'; EEG_phase_bsln{2}(chan, :)']),...
@@ -213,8 +213,8 @@ for grp = 1:2
         DV = [RT_incl{3}; RT_incl{4}];
         for chan = 1:size(ERPs{1}, 1) 
             IV = Res_gng(:, chan);
-            [r,~,~,~,~,~] = skipped_correlation(IV,DV,0);
-            coeff_robust_eegphaseresid{grp, 2}(part, chan) = r.Pearson;
+%             [r,~,~,~,~,~] = skipped_correlation(IV,DV,0);
+%             coeff_robust_eegphaseresid{grp, 2}(part, chan) = r.Pearson;
             
            % correlate phase of ongoing signal and RT 
            x = [[EEG_amplit_bsln{3}(chan, :)'; EEG_amplit_bsln{4}(chan, :)'].*cos([EEG_phase_bsln{3}(chan, :)'; EEG_phase_bsln{4}(chan, :)']),...
@@ -222,21 +222,21 @@ for grp = 1:2
            [coeffs_EEGphase_RT{grp, 2}(part, chan, :),~,~, ~, stats_mult_regrs{grp, 1}(part, chan, :)] = regress(DV, x);
         end
         
-        % calculate std across trials, simple RT and gng task - ERP
-        % residuals after reggressing EEG phase at baseline
-        erp_residuals_std{grp, 1}(part, :) = std(Res_simpleRT, [], 1); % simple RT
-        erp_residuals_std{grp, 2}(part, :) = std(Res_gng, [], 1); % gng
-        
-        erp_residuals_avg{grp, 1}(part, :) = mean(Res_simpleRT, 1); % simple RT
-        erp_residuals_avg{grp, 2}(part, :) = mean(Res_gng, 1); % gng
+%         % calculate std across trials, simple RT and gng task - ERP
+%         % residuals after reggressing EEG phase at baseline
+%         erp_residuals_std{grp, 1}(part, :) = std(Res_simpleRT, [], 1); % simple RT
+%         erp_residuals_std{grp, 2}(part, :) = std(Res_gng, [], 1); % gng
+%         
+%         erp_residuals_avg{grp, 1}(part, :) = mean(Res_simpleRT, 1); % simple RT
+%         erp_residuals_avg{grp, 2}(part, :) = mean(Res_gng, 1); % gng
      
     end
 end
 save coeff_robust_eegphaseresid coeff_robust_eegphaseresid % correlation coefficients RT vs ERP residuals
 save stats_mult_regrs stats_mult_regrs
 save coeffs_EEGphase_RT coeffs_EEGphase_RT % regression coefficients EEG bsln phase vs RT
-save erp_residuals_std erp_residuals_std
-save erp_residuals_avg erp_residuals_avg
+% save erp_residuals_std erp_residuals_std
+% save erp_residuals_avg erp_residuals_avg
 
 %% plot ERP residuals variability
 cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');

@@ -245,9 +245,10 @@ for task = 2%1:2
 end
 
 %% model r squared 
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability')
 load eeg_model_rsquared_per_task
 for task  = 1:2
-    plot_all_data_2groups(eeg_model_rsquared{task, 1}(:, 1), eeg_model_rsquared{task, 2}(:,1),'Model R squared', '')
+    plot_all_data_2groups(eeg_model_rsquared{task, 1}(:, 1), eeg_model_rsquared{task, 2}(:,1),'Model /itR2', '')
 
     [h,p,ci,stats] = ttest2(eeg_model_rsquared{task, 1}(:, 1), eeg_model_rsquared{task, 2}(:,1))
 

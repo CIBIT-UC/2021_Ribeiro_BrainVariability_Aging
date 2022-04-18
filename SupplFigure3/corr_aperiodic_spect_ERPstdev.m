@@ -4,7 +4,7 @@ clear; close all
 electrode = 'FCz'; %input('Enter the name of electrode to analyse: ','s');
 load('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs.mat');
 % power spectrum at electrode
-% find channel index<
+% find channel index
 for c = 1:length(chanlocs)
     if strcmp(chanlocs(c).labels, electrode)
         chan = c;
@@ -26,13 +26,13 @@ load([table_dir, 'PowerSpectralDensity_Young']); load([table_dir, 'PowerSpectral
 freqs = Frequencies(Frequencies>1 & Frequencies<35);
 filename = ['foof_results_', electrode, '_thresh1_width8_4pks.xlsx'];
 T = readtable([table_dir filename]);
-% exclude outliers with R2 z-score (calculated in the fisher r-to-z
-% transformed) >2.5
-outliers_young = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==1))>2.5);
-outliers_older = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==2))>2.5);
-T(abs(T.zscore_fisherR2Z_simpleRT)>2.5, :) = [];
-ERP_avg_amp_stdev_young(:, outliers_young, :) = [];
-ERP_avg_amp_stdev_older(:, outliers_older, :) = [];
+% % exclude outliers with R2 z-score (calculated in the fisher r-to-z
+% % transformed) >2.5
+% outliers_young = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==1))>2.5);
+% outliers_older = find(abs(T.zscore_fisherR2Z_simpleRT(T.group==2))>2.5);
+% T(abs(T.zscore_fisherR2Z_simpleRT)>2.5, :) = [];
+% ERP_avg_amp_stdev_young(:, outliers_young, :) = [];
+% ERP_avg_amp_stdev_older(:, outliers_older, :) = [];
 
 % avg power spectrum across trials
 % group: 1 = young; 2 = older; task: 1  = simple RT; 2 = gng
@@ -46,9 +46,9 @@ for p = 1:size(PowerSpectralDensity_Older, 1)
     avg_power_spectrum_older(2, p, :) = mean([PowerSpectralDensity_Older{p, 4, chan} PowerSpectralDensity_Older{p, 5, chan}], 2);
 end
 
-% remove outliers
-avg_power_spectrum_young(:, outliers_young, :) = [];
-avg_power_spectrum_older(:, outliers_older, :) = [];
+% % remove outliers
+% avg_power_spectrum_young(:, outliers_young, :) = [];
+% avg_power_spectrum_older(:, outliers_older, :) = [];
 
 for grp = 1:2
     offset_simpleRT = T.offset_simpleRT(T.group == grp); exponent_simpleRT = T.exponent_simpleRT(T.group == grp);
@@ -80,7 +80,7 @@ for grp = 1:2
         % plot grey background at freqs showing significant correlation
         sig_window = find(squeeze(corr_obs(grp, task, :)) > crit_corr(grp, task, 2))';
         for x = sig_window
-            plot([freqs(x) freqs(x)],[0 .8], '-', 'color', [.8 .8 .8], 'LineWidth', 10 ); hold on
+            plot([freqs(x) freqs(x)],[0 .95], '-', 'color', [.8 .8 .8], 'LineWidth', 10 ); hold on
         end
         plot(freqs, squeeze(corr_obs(grp, task, :)), '-k', 'LineWidth', 2); hold on
 %         % plot line at thrshold correlation r
@@ -88,6 +88,7 @@ for grp = 1:2
         set(gca,'ycolor','k');
         xlabel('Frequency (Hz)', 'FontSize', 30)
         ylabel('Correlation \itr', 'FontSize', 30)
+        axis([min(freqs), max(freqs), 0 .95])
         yyaxis right
         plot(freqs, squeeze(pval(grp, task, :)), '--', 'color',[0 158 115]/255, 'LineWidth', 2); hold on
         % plot line at p-value threshold
@@ -113,7 +114,7 @@ for grp = 1:2
         % plot grey background at freqs showing significant correlation
         sig_window = find(squeeze(corr_obs_raw(grp, task, :)) > crit_corr_raw(grp, task, 2))';
         for x = sig_window
-            plot([freqs(x) freqs(x)],[0 .8], '-', 'color', [.8 .8 .8], 'LineWidth', 10 ); hold on
+            plot([freqs(x) freqs(x)],[0 .95], '-', 'color', [.8 .8 .8], 'LineWidth', 10 ); hold on
         end
         plot(freqs, squeeze(corr_obs_raw(grp, task, :)), '-k', 'LineWidth', 2); hold on
 %         % plot line at threshold correlation r
@@ -121,7 +122,7 @@ for grp = 1:2
         set(gca,'ycolor','k') 
         xlabel('Frequency (Hz)', 'FontSize', 30)
         ylabel('Correlation \itr', 'FontSize', 30)
-        axis([min(freqs), max(freqs), 0 .8])
+        axis([min(freqs), max(freqs), 0 .95])
         yyaxis right
         plot(freqs, squeeze(pval_raw(grp, task, :)), '--', 'color', [0 158 115]/255, 'LineWidth', 2); hold on
         % plot line at p-value threshold

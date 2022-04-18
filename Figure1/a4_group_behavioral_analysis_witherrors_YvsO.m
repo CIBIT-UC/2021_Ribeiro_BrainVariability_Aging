@@ -10,7 +10,7 @@ older=[7	8	11	12	14	17	19	20	21	22	23	32	35	37	38  41	43	47	48	49	52	55	57	58	60
 
 % younger group analysis
 b=0;
-for s=young;
+for s=young
 b=b+1;
 clearvars -except young older b YoungerGroup_G_RT YoungerGroup_D_RT YoungerGroup_D_errors YoungerGroup_G_errors task s
 

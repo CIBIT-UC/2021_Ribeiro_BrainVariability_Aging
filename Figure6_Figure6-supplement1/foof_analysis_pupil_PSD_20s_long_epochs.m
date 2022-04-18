@@ -247,7 +247,7 @@ for task=1
     R2_transf_young = squeeze(fisherz(sqrt(r_squared_error_young(task, :, 1)))); 
     R2_transf_older = squeeze(fisherz(sqrt(r_squared_error_older(task, :, 1))));
     
-    % exclude outliers
+    % exclude outliers - there are no outliers!
     incl_young = find(abs(zscore(R2_transf_young )) <= 2.5);
     incl_older = find(abs(zscore(R2_transf_older )) <= 2.5);
     figure;
@@ -258,8 +258,9 @@ for task=1
         'o', 'color', [1 .5 .5],'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5); hold on    
     plot(R2_transf_young(incl_young),exponent_young(task, incl_young), ...
         'o', 'color', [.8 .8 .8],'MarkerFaceColor',[.8 .8 .8], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5);
-    hold off;
+    hold off; box off
     ax = gca; ax.FontSize = 18; ax.FontName = 'Arial';ax.Color = 'none';
+    ax.LineWidth = 2.5; 
     ylabel('PSD exponent', 'FontSize', 32, 'FontWeight','normal');
     xlabel('{\itR} (z-transformed)', 'FontSize', 28, 'FontWeight','normal');
 %     title([task_name{task}], 'FontSize', 32, 'FontWeight','normal');
@@ -277,7 +278,7 @@ for task=1
     
     [r, p] = corrcoef([R2_transf_young(incl_young); R2_transf_older(incl_older)],[squeeze(exponent_young(task, incl_young))'; squeeze(exponent_older(task, incl_older))']);
     xt = 3.5; yt = 1.95;
-    str = {['\itr = ' num2str(r(1, 2))], ['\itp = ' num2str(p(1, 2))]};
+    str = {['\itr = ' num2str(r(1, 2),'%4.3f')], ['\itp = ' num2str(p(1, 2),'%4.3f')]};
     text(xt,yt,str,'FontSize',18)
     
 
@@ -290,8 +291,9 @@ for task=1
          'o', 'color', [1 .5 .5],'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5); hold on    
     plot(R2_transf_young(incl_young),offset_young(task, incl_young), ...
          'o', 'color', [.8 .8 .8],'MarkerFaceColor',[.8 .8 .8], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5);
-    hold off;
+    hold off; box off
     ax = gca; ax.FontSize = 18; ax.FontName = 'Arial';ax.Color = 'none';
+    ax.LineWidth = 2.5; 
     ylabel('PSD offset', 'FontSize', 32, 'FontWeight','normal');
     xlabel('{\itR} (z-transformed)', 'FontSize', 28, 'FontWeight','normal');
 %     title([task_name{task}], 'FontSize', 32, 'FontWeight','normal');
@@ -299,7 +301,7 @@ for task=1
     
     [r, p] = corrcoef([R2_transf_young(incl_young); R2_transf_older(incl_older)],[squeeze(offset_young(task, incl_young))'; squeeze(offset_older(task, incl_older))']);
     xt = 3.3; yt = -4.2;
-    str = {['\itr = ' num2str(r(1, 2))], ['\itp = ' num2str(p(1, 2))]};
+    str = {['\itr = ' num2str(r(1, 2),'%4.3f')], ['\itp = ' num2str(p(1, 2),'%4.3f')]};
     text(xt,yt,str,'FontSize',18)
 
 end
@@ -673,13 +675,19 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     axis([0 3 -inf inf]);
     ax = gca;
     ax.LineWidth = 2.5; 
-    ax.YAxis.FontSize = 18;
-    ax.XAxis.FontSize = 28;
     ax.FontName = 'Arial';
     ax.Color = 'none';
+    ax.YAxis.FontSize = 24;
     ax.XTickLabel= {'Young' 'Older'};
     xticks([1 2])
-    ylabel(y_label_text, 'FontSize', 28, 'FontWeight','normal')
+    if contains(y_label_text, 'z-transformed')
+        ylabel(y_label_text, 'FontSize', 32, 'FontWeight','normal')
+        ax.XAxis.FontSize = 32;
+    else
+        ylabel(y_label_text, 'FontSize', 28, 'FontWeight','normal')
+        ax.YAxis.FontSize = 18;
+        ax.XAxis.FontSize = 28;
+    end
     
 %     x0=10;
 %     y0=10;

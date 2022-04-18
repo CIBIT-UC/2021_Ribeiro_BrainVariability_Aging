@@ -152,7 +152,8 @@ save number_peaks_older number_peaks_older
 
 %% exclude outliers where the fittign wasn't so good - for each channel find participants where R2 zscore > 2.5
 % change data for NAN - data in paper including all data points - outliers
-% only excluded in correlation analyses
+% opted at the end for not excluding these outliers - results qualitatively
+% the same
 cd 'G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\pre-stimulus_alpha\fooof_all_channels';
 load r_squared_error_older % (task, p, chan, r2 and error)
 load r_squared_error_young
@@ -655,25 +656,26 @@ for task=2 %1:2
     R2_transf_young = squeeze(fisherz(sqrt(r_squared_error_young(task, :, chan, 1)))); 
     R2_transf_older = squeeze(fisherz(sqrt(r_squared_error_older(task, :, chan, 1))));
     
-    % exclude outliers
-    incl_young = find(abs(zscore(R2_transf_young )) <= 2.5);
-    incl_older = find(abs(zscore(R2_transf_older )) <= 2.5);
-    figure;
-    plot([R2_transf_young(incl_young); R2_transf_older(incl_older)],[squeeze(exponent_young(task, incl_young, chan))'; squeeze(exponent_older(task, incl_older, chan))'],...
+%     % exclude outliers
+%     incl_young = find(abs(zscore(R2_transf_young )) <= 2.5);
+%     incl_older = find(abs(zscore(R2_transf_older )) <= 2.5);
+    figure; box off
+    plot([R2_transf_young; R2_transf_older],[squeeze(exponent_young(task, :, chan))'; squeeze(exponent_older(task, :, chan))'],...
         'o', 'color', 'w',  'MarkerSize',.1); h = lsline; hold on
     set(h(1),'color','k')
-    plot(R2_transf_older(incl_older),exponent_older(task, incl_older, chan), ...
+    plot(R2_transf_older,exponent_older(task, :, chan), ...
             'o', 'color', [1 .5 .5], ...
             'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5); hold on    
 
-    plot(R2_transf_young(incl_young),exponent_young(task, incl_young, chan), ...
+    plot(R2_transf_young,exponent_young(task, :, chan), ...
         'o', 'color', [.8 .8 .8],'MarkerFaceColor',[.8 .8 .8], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5);
-    hold off;
+    hold off; box off
     ax = gca; ax.FontSize = 18; ax.FontName = 'Arial';ax.Color = 'none';
+    ax.LineWidth = 2.5; 
     ylabel('PSD exponent', 'FontSize', 32, 'FontWeight','normal');
     xlabel('{\itR} (z-transformed)', 'FontSize', 28, 'FontWeight','normal');
 %     title([task_name{task}, ' ', electrode], 'FontSize', 32, 'FontWeight','normal');
-    axis([1.5 5 0 2])
+%     axis([1.5 5 0 2])
 %     y = [exponent_young(task+1, abs(zscore(R2_transf(1:length(younger)))) <= 2.5)'; exponent_older(task+1, abs(zscore(R2_transf(length(younger)+1:end))) <= 2.5)'];
 %     x = [ones(length(R2_transf(abs(zscore(R2_transf)) <= 2.5)), 1), R2_transf(abs(zscore(R2_transf)) <= 2.5)];
 %     b = regress(y,x)  
@@ -684,35 +686,34 @@ for task=2 %1:2
 %     y1-y2
 %     x1_r2 = ifisherz(x1).^2
 %     x2_r2 = ifisherz(x2).^2
-    
-    [r, p] = corrcoef([R2_transf_young(incl_young); R2_transf_older(incl_older)],[squeeze(exponent_young(task, incl_young, chan))'; squeeze(exponent_older(task, incl_older, chan))']);
+
+    [r, p] = corrcoef([R2_transf_young; R2_transf_older],[squeeze(exponent_young(task, :, chan))'; squeeze(exponent_older(task, :, chan))']);
     xt = 3.5; yt = .5;
-    str = {['\itr = ' num2str(r(1, 2))], ['\itp = ' num2str(p(1, 2))]};
+    str = {['\itr = ' num2str(r(1, 2),'%4.3f')], ['\itp = ' num2str(p(1, 2),'%4.3f')]};
     text(xt,yt,str,'FontSize',18)
     
 
 % offset
-    figure;
-    plot([R2_transf_young(incl_young); R2_transf_older(incl_older)],[squeeze(offset_young(task, incl_young, chan))'; squeeze(offset_older(task, incl_older, chan))'],...
+    figure; box off
+    plot([R2_transf_young; R2_transf_older],[squeeze(offset_young(task, :, chan))'; squeeze(offset_older(task, :, chan))'],...
         'o', 'color', 'w',  'MarkerSize',.1); h = lsline; hold on
     set(h(1),'color','k')
-    plot(R2_transf_older(incl_older),offset_older(task, incl_older, chan), ...
+    plot(R2_transf_older,offset_older(task, :, chan), ...
         'o', 'color', [1 .5 .5],'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5);  hold on    
-    plot(R2_transf_young(incl_young),offset_young(task, incl_young, chan), ...
+    plot(R2_transf_young,offset_young(task, :, chan), ...
         'o', 'color', [.8 .8 .8],'MarkerFaceColor',[.8 .8 .8], 'MarkerEdgeColor','k','MarkerSize',12, 'LineWidth', 1.5);
-    hold off;
+    hold off; box off
     ax = gca; ax.FontSize = 18; ax.FontName = 'Arial';ax.Color = 'none';
+    ax.LineWidth = 2.5; 
     ylabel('PSD offset', 'FontSize', 32, 'FontWeight','normal');
     xlabel('{\itR} (z-transformed)', 'FontSize', 28, 'FontWeight','normal');
 %     title([task_name{task}, ' ', electrode], 'FontSize', 32, 'FontWeight','normal');
-    axis([1.5 5  0 2])
+%     axis([1.5 5  0 2])
     
-    [r, p] = corrcoef([R2_transf_young(incl_young); R2_transf_older(incl_older)],[squeeze(offset_young(task, incl_young, chan))'; squeeze(offset_older(task, incl_older, chan))']);
+    [r, p] = corrcoef([R2_transf_young; R2_transf_older],[squeeze(offset_young(task, :, chan))'; squeeze(offset_older(task, :, chan))']);
     xt = 3.5; yt = .5;
-    str = {['\itr = ' num2str(r(1, 2))], ['\itp = ' num2str(p(1, 2))]};
+    str = {['\itr = ' num2str(r(1, 2),'%4.3f')], ['\itp = ' num2str(p(1, 2),'%4.3f')]};
     text(xt,yt,str,'FontSize',18)
-
-
 end
 
 
@@ -1088,7 +1089,11 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
     ax.Color = 'none';
     ax.XTickLabel= {'Young' 'Older'};
     xticks([1 2])
-    ylabel(y_label_text, 'FontSize', 40, 'FontWeight','normal')
+    if contains(y_label_text, 'z-transformed')
+        ylabel(y_label_text, 'FontSize', 32, 'FontWeight','normal')
+    else
+        ylabel(y_label_text, 'FontSize', 40, 'FontWeight','normal')
+    end
     
 %     x0=10;
 %     y0=10;

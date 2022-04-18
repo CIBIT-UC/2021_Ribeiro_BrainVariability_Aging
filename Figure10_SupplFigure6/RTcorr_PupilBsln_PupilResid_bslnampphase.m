@@ -52,8 +52,8 @@ for grp = 1:2
             % average pupil dilation from 1000 - 1500 ms after cue onset -
             % 240 sampling rate
             % pupil_avg_response{t} = squeeze(mean(EEG.data(1, 360:end, setdiff(1:60, RejectEpochsCorrect{t-1})), 2)); % time x trials 
-            pupil_avg_response{t} = squeeze(mean(EEG.data(1, 481:600, :), 2)); % time x trials 
-            
+            % pupil_avg_response{t} = squeeze(mean(EEG.data(1, 481:600, :), 2)); % time x trials 
+            pupil_avg_response{t} = squeeze(mean(EEG.data(1, 288:408, :), 2)); % time x trials 
             % determine reaction time for each trial
             epoch_event=zeros(size(EEG.event, 2), 3);
 
@@ -110,12 +110,12 @@ for grp = 1:2
         end
         
         
-%         % within-subject correlation between pupil response amplitude and reaction time 
-%         [r,~,~,~,~,~] = skipped_correlation([pupil_avg_response{1}; pupil_avg_response{2}], [RT{1}; RT{2}],0);
-%         coeff_robust_TPR_RT{grp, 1}(count) = r.Pearson;
-%         
-%         [r,~,~,~,~,~] = skipped_correlation([pupil_avg_response{3}; pupil_avg_response{4}], [RT{3}; RT{4}],0);
-%         coeff_robust_TPR_RT{grp, 2}(count) = r.Pearson;
+        % within-subject correlation between pupil response amplitude and reaction time 
+        [r,~,~,~,~,~] = skipped_correlation([pupil_avg_response{1}; pupil_avg_response{2}], [RT{1}; RT{2}],0);
+        coeff_robust_TPR_RT{grp, 1}(count) = r.Pearson;
+        
+        [r,~,~,~,~,~] = skipped_correlation([pupil_avg_response{3}; pupil_avg_response{4}], [RT{3}; RT{4}],0);
+        coeff_robust_TPR_RT{grp, 2}(count) = r.Pearson;
         
        % regress phase of slow fluctuations out of erp amplitude
        % simple RT
@@ -156,14 +156,13 @@ for grp = 1:2
          x = [[pupil_bsln_amp{3}.*cos(pupil_bsln_phase{3}); pupil_bsln_amp{4}.*cos(pupil_bsln_phase{4})], [pupil_bsln_amp{3}.*sin(pupil_bsln_phase{3}); pupil_bsln_amp{4}.*sin(pupil_bsln_phase{4})],...
              [time_on_task{3}; time_on_task{4}], ones(length(y), 1)];
          coefs_phase_timeontask_RT{grp, 2}(count, :) = regress(y, x);
-%         
-%         
-%          % within-subject correlation between pupil baseline and TPR amplitude
-%         [r,~,~,~,~,~] = skipped_correlation([pupil_baseline{1}; pupil_baseline{2}], [pupil_avg_response{1}; pupil_avg_response{2}],0);
-%         coeff_robust_pupilBsln_TPR{grp, 1}(count) = r.Pearson;
-%         
-%         [r,~,~,~,~,~] = skipped_correlation([pupil_baseline{3}; pupil_baseline{4}], [pupil_avg_response{3}; pupil_avg_response{4}],0);
-%         coeff_robust_pupilBsln_TPR{grp, 2}(count) = r.Pearson;
+        
+         % within-subject correlation between pupil baseline and TPR amplitude
+        [r,~,~,~,~,~] = skipped_correlation([pupil_baseline{1}; pupil_baseline{2}], [pupil_avg_response{1}; pupil_avg_response{2}],0);
+        coeff_robust_pupilBsln_TPR{grp, 1}(count) = r.Pearson;
+        
+        [r,~,~,~,~,~] = skipped_correlation([pupil_baseline{3}; pupil_baseline{4}], [pupil_avg_response{3}; pupil_avg_response{4}],0);
+        coeff_robust_pupilBsln_TPR{grp, 2}(count) = r.Pearson;
         
         
         % within-subject correlation between pupil baseline and TPR
@@ -196,10 +195,7 @@ for grp = 1:2
         % residuals after reggressing pupil baseline
         pupil_resd_phase_std{grp, 1}(count) = std(Res_simpleRT); % simple RT
         pupil_resd_phase_std{grp, 2}(count) = std(Res_gng); % gng
-        
-        
-        
-
+               
     end
 end
 
@@ -210,10 +206,11 @@ cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\Pupil
 save coefs_phase_timeontask_RT coefs_phase_timeontask_RT
 save pupil_resd_phase_std pupil_resd_phase_std
 save coeff_robust_pupilBsln_TPRresid coeff_robust_pupilBsln_TPRresid
-% % save coeff_robust_pupilBsln_TPR coeff_robust_pupilBsln_TPR
+save coeff_robust_pupilBsln_TPR coeff_robust_pupilBsln_TPR
 save coeff_robust_pupilresidphase_RT coeff_robust_pupilresidphase_RT % correlation coefficients RT vs pupil adjusted for basln phase
 save coefs_phase_RT coefs_phase_RT
-% save coeff_robust_TPR_RT coeff_robust_TPR_RT
+save coeff_robust_TPR_RT coeff_robust_TPR_RT
+save pupil_resd_phase_std pupil_resd_phase_std
 
 
 %% within-subject correlation between pupil baseline and reaction time 
@@ -248,31 +245,39 @@ p_value = cell(2, 2); stats = cell(2, 2);
 
 
 %% comparison between correlation coefficients with and without adjustment for ongoing slow fluctuations
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability')
 load coeff_robust_pupilresidphase_RT % group x task
-load coeff_robust_TPR_RT % correlation between TPR amplitude and RT
-plot_all_data_2tasks(coeff_robust_TPR_RT{1,1}, coeff_robust_TPR_RT{1, 2},...
-    coeff_robust_TPR_RT{2, 1}, coeff_robust_TPR_RT{2, 2}, 'Correlation r');
+load coeff_robust_TPR_RT % correlation between TPR amplitude and RT group x task
+% plot_all_data_2tasks(coeff_robust_TPR_RT{1,1}, coeff_robust_TPR_RT{1, 2},...
+%     coeff_robust_TPR_RT{2, 1}, coeff_robust_TPR_RT{2, 2}, 'Correlation r');
 
-% difference between coefficients without and with the adjustment
+% plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
+plot_all_data_onetask(coeff_robust_TPR_RT{1, 2},coeff_robust_TPR_RT{2, 2}, 'Correlation \itr')
+
+% within-subject correlation between pupil baseline and TPR amplitude
+plot_all_data_2tasks(coeff_robust_TPR_RT{1, 2},coeff_robust_pupilresidphase_RT{1, 2},...
+     coeff_robust_TPR_RT{2, 2}, coeff_robust_pupilresidphase_RT{2, 2}, 'Correlation \itr');
+
+%% difference between coefficients without and with the adjustment
 % all participants together
 [h,p_value_all,ci,stats_all] = ttest([coeff_robust_pupilresidphase_RT{1,2}, coeff_robust_pupilresidphase_RT{2,2}], ...
     [coeff_robust_TPR_RT{1, 2}, coeff_robust_TPR_RT{2, 2}])
+ 
+% are coefficients different across groups
+p_value2 = cell(2, 1); stats2 = cell(2, 1);
+[h,p_value2{1},ci,stats2{1}] = ttest2(coeff_robust_pupilresidphase_RT{1,1}, coeff_robust_pupilresidphase_RT{2,1}); % simple RT
+[h,p_value2{2},ci,stats2{2}] = ttest2(coeff_robust_pupilresidphase_RT{1,2}, coeff_robust_pupilresidphase_RT{2,2}); % gng
 
-
-
-% 
-% % are coefficients different across groups
-% p_value2 = cell(2, 1); stats2 = cell(2, 1);
-% [h,p_value2{1},ci,stats2{1}] = ttest2(coeff_robust_pupilresidphase_RT{1,1}, coeff_robust_pupilresidphase_RT{2,1}); % simple RT
-% [h,p_value2{2},ci,stats2{2}] = ttest2(coeff_robust_pupilresidphase_RT{1,2}, coeff_robust_pupilresidphase_RT{2,2}); % gng
+[h,p_val,ci,stats] = ttest2(coeff_robust_TPR_RT{1,2}, coeff_robust_TPR_RT{2,2}); % gng
 
 % coefficients both groups together one-sample
 p_value1 = cell(2, 1); stats1 = cell(2, 1);
 [h,p_value1{1},ci,stats1{1}] = ttest([coeff_robust_pupilresidphase_RT{1,1}, coeff_robust_pupilresidphase_RT{2,1}]); % simple RT
 [h,p_value1{2},ci,stats1{2}] = ttest([coeff_robust_pupilresidphase_RT{1,2}, coeff_robust_pupilresidphase_RT{2,2}]); % gng
 
-%% within-subject correlation between pupil baseline and TPR amplitude
+[h,p_val,ci,stats] = ttest([coeff_robust_TPR_RT{1,2}, coeff_robust_TPR_RT{2,2}]); % gng
 
+% within-subject correlation between pupil baseline and TPR amplitude
 plot_all_data_2tasks(coeff_robust_pupilBsln_TPR{1,1}, coeff_robust_pupilBsln_TPR{1, 2},...
     coeff_robust_pupilBsln_TPR{2, 1}, coeff_robust_pupilBsln_TPR{2, 2}, 'Correlation r');
 
@@ -396,7 +401,7 @@ writetable(T,filename,'Sheet',1,'Range','A1')
 function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 
     % plot data for young group - simple RT and go/nogo task
-    figure; box on; hold on
+    figure; box off; hold on
     
     % plot data for group 1
     yMean1=nanmean(data_grp1_task1); yMean2=nanmean(data_grp1_task2);
@@ -437,8 +442,8 @@ function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1,
     rectangle('Position',[5-0.3,yMean2-y_se2, 0.6, 2*y_se2 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
     
     for y=1:length(data_grp2_task1)
-        plot([4 5]+rand*0.2-0.1, [data_grp2_task1(y) data_grp2_task2(y)] ,'-o', 'color', [1 .8 .8], ...
-            'MarkerFaceColor',[1 .8 .8], 'MarkerEdgeColor','k','MarkerSize',8, 'LineWidth', 1);
+        plot([4 5]+rand*0.2-0.1, [data_grp2_task1(y) data_grp2_task2(y)] ,'-o', 'color', [1 .5 .5], ...
+            'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',8, 'LineWidth', 1);
         hold on;  
     end
 
@@ -455,11 +460,11 @@ function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1,
     hold off;
     axis([0 6 -inf inf]);
     ax = gca;
-    c = ax.Color;
+    ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';
-    ax.XTickLabel=[1 2 1 2];
+    ax.XTickLabel=[];
     xticks([1 2 4 5])
     ylabel(y_label_text, 'FontSize',32, 'FontWeight','normal')
     

@@ -231,8 +231,8 @@ for grp = 1:2
             % average pupil dilation from 1000 - 1500 ms after cue onset -
             % 240 sampling rate
             % pupil_avg_response{t} = squeeze(mean(EEG.data(1, 360:end, setdiff(1:60, RejectEpochsCorrect{t-1})), 2)); % time x trials 
-            pupil_avg_response{t} = squeeze(mean(EEG.data(1, 481:600, :), 2)); % time x trials 
-            
+%             pupil_avg_response{t} = squeeze(mean(EEG.data(1, 481:600, :), 2)); % time x trials 
+            pupil_avg_response{t} = squeeze(mean(EEG.data(1, 1.2*EEG.srate:1.7*EEG.srate, :), 2)); % time x trials 
             % determine reaction time for each trial
             epoch_event=zeros(size(EEG.event, 2), 3);
 
@@ -548,7 +548,7 @@ for ef = 1:2 %pupil , erp
     end
 end
 
-%% compare R2 at channel C5 with and without pupil
+% compare R2 at channel C5 with and without pupil
 % matrix with R2 pupil, R2 erp, R2 pupil + erp - gng only
 % find chan index = C5
 for chan = 1:length(chanlocs_EEGChanOnly)
@@ -573,7 +573,13 @@ R2_avg = [[mean(R2_erp{1, 2}, 2); mean(R2_erp{2, 2}, 2)],...
 
 R2 = array2table([R2_C5, R2_FC6, R2_avg], "VariableNames",["group","pupil","erp_c5", "pupil_erp_c5", "erp_fc6", "pupil_erp_fc6",  "erp_avg", "pupil_erp_avg"]);
 
-writetable(R2, 'R2_adjusted_pupil_erp_vs_RT.xlsx')
+%% plot R2 pupil only, erp only, pupil+erp - avg across channels
+% plot_all_data_3tasks(data_grp1_task1, data_grp1_task2, data_grp1_task3,...
+%     data_grp2_task1, data_grp2_task2, data_grp2_task3, y_label_text)
+plot_all_data_3tasks(R2.pupil(R2.group == 1)*100, R2.erp_avg(R2.group == 1)*100, R2.pupil_erp_avg(R2.group == 1)*100,...
+    R2.pupil(R2.group == 2)*100, R2.erp_avg(R2.group == 2)*100, R2.pupil_erp_avg(R2.group == 2)*100, '\itR\rm^{2} \rm(%)')
+
+% writetable(R2, 'R2_adjusted_pupil_erp_vs_RT.xlsx')
 
 
 
@@ -594,7 +600,7 @@ end
 % plot t-values from one sample t-test both groups together
 load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
-for task = 1:2
+for task = 2%1:2
     sig_t_values = zeros(1, 59);
     sig_t_values(t_orig_t1_all(task, :) > crit_t_t1_all(task, 1)) = 1;
     sig_t_values(t_orig_t1_all(task, :) < crit_t_t1_all(task, 2)) = 1;
@@ -615,8 +621,8 @@ for task = 1:2
 %     else
 %         caxis([-9 0]);
 %     end
-    colorbar; c.Axis.FontSize = 16;
-%     colorbar('Ticks',[0, 2, 4], 'FontSize', 30, 'FontWeight','normal');
+    colorbar; %c.Axis.FontSize = 16;
+    colorbar('Ticks',[0, 2, 4, 6], 'FontSize', 30, 'FontWeight','normal');
     colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
     title(title_txt{task}, 'FontSize', 30, 'FontWeight','normal')
     set(get(gca,'title'),'Position',[0,-.65, 0])
@@ -625,6 +631,7 @@ end
 
 
 %% correlation between erp and pupil response with and without adjustment
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 title_txt = {'Simple RT' 'Go/no-go'}; adj_text = {'with adj' 'without adj'}; grp_txt = {'young', 'older'};
 clear pval_t2 t_orig_t2 crit_t_t2 sig_chans_all
 for adj = 2%1:2
@@ -664,9 +671,9 @@ for adj = 2%1:2
                         'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
             end
             topoplot(mean(coeffs{grp, task}, 1), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
-            caxis([-.18 0]); %c.Axis.FontSize = 16;
+%             caxis([-.18 0]); %c.Axis.FontSize = 16;
             colorbar;
-            colorbar('Ticks',[-.15, -.1, -.05, 0], 'FontSize', 26, 'FontWeight','normal');
+%             colorbar('Ticks',[-.15, -.1, -.05, 0], 'FontSize', 26, 'FontWeight','normal');
             colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
 %             title([grp_txt{grp}, '-',adj_text{adj}], 'FontSize', 30, 'FontWeight','normal')
 %             set(get(gca,'title'),'Position',[0,-.65, 0])
@@ -731,9 +738,9 @@ for adj = 2%1:2
                     'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
         end
         topoplot(mean([coeffs{1, task}; coeffs{2, task}], 1), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
-        caxis([-.18 0]); %c.Axis.FontSize = 16;
+        caxis([-.08 0]); %c.Axis.FontSize = 16;
         colorbar;
-        colorbar('Ticks',[-.15, -.1, -.05, 0], 'FontSize', 26, 'FontWeight','normal');
+        colorbar('Ticks',[-.08,-.04, 0], 'FontSize', 26, 'FontWeight','normal');
         colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
 %         title(title_txt{task}, 'FontSize', 30, 'FontWeight','normal')
 %         set(get(gca,'title'),'Position',[0,-.65, 0])
@@ -744,15 +751,15 @@ end
 %% compare correlation coefficients with and without adjustment
 % coeff_erp_pupil_phaseresid; % group x task
 % coeff_erp_pupil;
-clear sig_chans_all
-for task = 1:2
-    [pval_effect_of_adj(task, :), t_orig_effect_of_adj(task, :), crit_t_effect_of_adj(task, :),~,~] = mult_comp_perm_t1([coeff_erp_pupil_phaseresid{1, task}; coeff_erp_pupil_phaseresid{1, task}]-[coeff_erp_pupil{1, task}; coeff_erp_pupil{1, task}]);
+clear sig_chans_all pval_effect_of_adj t_orig_effect_of_adj crit_t_effect_of_adj
+for task = 2%1:2
+    [pval_effect_of_adj(task, :), t_orig_effect_of_adj(task, :), crit_t_effect_of_adj(task, :),~,~] = mult_comp_perm_t1([coeff_erp_pupil_phaseresid{1, task}; coeff_erp_pupil_phaseresid{2, task}]-[coeff_erp_pupil{1, task}; coeff_erp_pupil{2, task}]);
     
     sig_t_values = zeros(1, 59);
     sig_t_values(t_orig_effect_of_adj(task, :) > crit_t_effect_of_adj(task, 2)) = 1;
     sig_t_values(t_orig_effect_of_adj(task, :) < crit_t_effect_of_adj(task, 1)) = 1;
     sig_chan_number = find(sig_t_values == 1);
-
+    clear sig_chans_all
     for x = 1:length(sig_chan_number)
         sig_chans_all{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
     end
@@ -1117,7 +1124,7 @@ end
 
     
 
-    %% function to plot all data points 2 tasks 2 groups
+%% function to plot all data points 2 tasks 2 groups
 function plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 
     % plot data for young group - simple RT and go/nogo task
@@ -1269,3 +1276,85 @@ function plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 %     set(gcf,'position',[x0,y0,width,height])
 end
 
+
+%% function to plot all data points 3 conditions 2 groups
+function plot_all_data_3tasks(data_grp1_task1, data_grp1_task2, data_grp1_task3,...
+    data_grp2_task1, data_grp2_task2, data_grp2_task3, y_label_text)
+
+    % plot data for young group - simple RT and go/nogo task
+    figure; box off; hold on
+    
+    % plot data for group 1
+    yMean1=nanmean(data_grp1_task1); yMean2=nanmean(data_grp1_task2); yMean3=nanmean(data_grp1_task3);
+    y_se1 = nanstd(data_grp1_task1)/sqrt(length(data_grp1_task1)); y_se2 = nanstd(data_grp1_task2)/sqrt(length(data_grp1_task2));
+    y_se3 = nanstd(data_grp1_task3)/sqrt(length(data_grp1_task3));
+    %plot the mean+-SEM box
+    %   RECTANGLE('Position',pos) creates a rectangle in 2-D coordinates.
+    %   Specify pos as a four-element vector of the form [x y w h] in data
+    %   units. The x and y elements determine the location and the w and h
+    %   elements determine the size. The function plots into the current axes
+    %   without clearing existing content from the axes.
+    rectangle('Position',[1-0.3,yMean1-y_se1, 0.6, 2*y_se1 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    rectangle('Position',[2-0.3,yMean2-y_se2, 0.6, 2*y_se2 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    rectangle('Position',[3-0.3,yMean3-y_se3, 0.6, 2*y_se3 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    
+    for y=1:length(data_grp1_task1)
+        plot([1 2 3]+rand*0.2-0.1, [data_grp1_task1(y) data_grp1_task2(y) data_grp1_task3(y)] ,'-o', 'color', [.8 .8 .8], ...
+            'MarkerFaceColor',[.8 .8 .8], 'MarkerEdgeColor','k','MarkerSize',8, 'LineWidth', 1);
+        hold on;
+    end
+
+    %plot the mean line
+    plot([1 2 3 ],[yMean1 yMean2 yMean3] ,'Color','k','LineWidth',1.5);
+    plot([1-0.3 1+0.3],[yMean1 yMean1] ,'Color','k','LineWidth',5);
+    plot([2-0.3 2+0.3],[yMean2 yMean2] ,'Color','k','LineWidth',5);
+    plot([3-0.3 3+0.3],[yMean3 yMean3] ,'Color','k','LineWidth',5);
+    
+    
+    % group 2
+    yMean1=nanmean(data_grp2_task1); yMean2=nanmean(data_grp2_task2); yMean3=nanmean(data_grp2_task3);
+    y_se1 = nanstd(data_grp2_task1)/sqrt(length(data_grp2_task1)); y_se2 = nanstd(data_grp2_task2)/sqrt(length(data_grp2_task2));
+    y_se3 = nanstd(data_grp2_task3)/sqrt(length(data_grp2_task3));
+    %plot the mean+-SEM box
+    %   RECTANGLE('Position',pos) creates a rectangle in 2-D coordinates.
+    %   Specify pos as a four-element vector of the form [x y w h] in data
+    %   units. The x and y elements determine the location and the w and h
+    %   elements determine the size. The function plots into the current axes
+    %   without clearing existing content from the axes.
+    rectangle('Position',[5-0.3,yMean1-y_se1, 0.6, 2*y_se1 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    rectangle('Position',[6-0.3,yMean2-y_se2, 0.6, 2*y_se2 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    rectangle('Position',[7-0.3,yMean3-y_se3, 0.6, 2*y_se3 ],'FaceColor',[.7 .7 .7],'EdgeColor', [.7 .7 .7],'LineWidth',0.1);
+    
+    for y=1:length(data_grp2_task1)
+        plot([5 6 7]+rand*0.2-0.1, [data_grp2_task1(y) data_grp2_task2(y) data_grp2_task3(y)] ,'-o', 'color', [1 .5 .5], ...
+            'MarkerFaceColor',[1 .5 .5], 'MarkerEdgeColor','k','MarkerSize',8, 'LineWidth', 1);
+        hold on;  
+    end
+
+     %plot the mean line
+    plot([5 6 7],[yMean1 yMean2 yMean3] ,'Color','k','LineWidth',1.5);
+    plot([5-0.3 5+0.3],[yMean1 yMean1] ,'Color','k','LineWidth',5);
+    plot([6-0.3 6+0.3],[yMean2 yMean2] ,'Color','k','LineWidth',5);
+    plot([7-0.3 7+0.3],[yMean3 yMean3] ,'Color','k','LineWidth',5);
+    
+    % plot line on zero
+    plot([0 8], zeros(2, 1), '--k')
+    
+    % axes('XColor','none');
+    hold off;
+    axis([0 8 -inf 25]);
+    ax = gca;
+    ax.LineWidth = 2.5; 
+    ax.FontSize = 24;
+    ax.FontName = 'Arial';
+    ax.Color = 'none';
+    ax.XTickLabel=[];
+    xticks([1 2 3 5 6 7])
+    ylabel(y_label_text, 'FontSize',32, 'FontWeight','normal')
+    
+%     x0=10;
+%     y0=10;
+%     width=400;
+%     height=400;
+%     set(gcf,'position',[x0,y0,width,height])
+end
