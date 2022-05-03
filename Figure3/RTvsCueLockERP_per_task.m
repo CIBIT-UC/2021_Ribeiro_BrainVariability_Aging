@@ -178,6 +178,7 @@ plot_quintiles(data_simple_RT{2}, 'Simple RT - older');
 plot_quintiles(data_gng{2}, 'Older');
 
 %% stats using permutation method
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 load coeff_robust_chan
 clear pval_t1 t_orig_t1 crit_t_t1 pval_t1_all t_orig_t1_all crit_t_t1_all
 for task = 1:2

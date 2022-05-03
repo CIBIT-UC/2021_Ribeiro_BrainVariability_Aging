@@ -161,15 +161,15 @@ PSD_per_condition_older(3, :, :) = mean(Pupil_PSD_20s_epochs_Older(4:5, :, :), 1
 % variability - avg peak = .4394 = freq to use [0.468750000000000]
 % calculated in: G:\ProjectAgingNeuromodulation\AuditoryResearch\PupilDilation_analysis\PupilVariability\corr_aperiodic_spect_Pupilstdev.m
 Res = [];
-for task = 1:2
+for task = 2%1:2
     Y = [std_pupil_avg_response{1, task}; std_pupil_avg_response{2, task}];
     X = [[squeeze(log10(PSD_per_condition_young(1, :, 5)))'; squeeze(log10(PSD_per_condition_older(1, :, 5)))'],...
         ones(size(PSD_per_condition_young, 2)+size(PSD_per_condition_older, 2), 1)];
     [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
     % scatter plot and correlation analyses
     xlim_min = -inf;
-    scatter_and_corr(X(T.group==1), Y(T.group==1), 'PD SD', 'log10PSD', ['Young - ', task_name{task}], 0, xlim_min)
-    scatter_and_corr(X(T.group==2), Y(T.group==2), 'PD SD', 'log10PSD', ['Older - ', task_name{task}], 0, xlim_min)
+    scatter_and_corr(X(T.group==1), Y(T.group==1), 'PD SD', 'log10(slow spectral power)', 'Young', 0, xlim_min)
+    scatter_and_corr(X(T.group==2), Y(T.group==2), 'PD SD', 'log10(slow spectral power)', 'Older', 0, xlim_min)
 end
 
 % plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
@@ -269,7 +269,9 @@ function scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt, xli
     if p(1, 2)<.05
         lsline;
     end
+    box off
     ax = gca; ax.FontSize = 24; ax.FontName = 'Arial';ax.Color = 'none';
+    ax.LineWidth = 2.5; 
     ylabel(ylabel_txt, 'FontSize', 32, 'FontWeight','normal');
     xlabel(xlabel_txt, 'FontSize', 32, 'FontWeight','normal');
     title(title_txt, 'FontSize', 32, 'FontWeight','normal');

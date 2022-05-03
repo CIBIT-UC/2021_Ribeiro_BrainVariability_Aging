@@ -107,7 +107,7 @@ for grp = 1:2
 end
 
 
-% regress out the effect of exponent from CNV variability and compare across groups
+%% regress out the effect of exponent from CNV variability and compare across groups
 % ERP_std = group x task - participant x channel
 % exponent = group x task - participant x channel
 
@@ -168,7 +168,7 @@ for grp = 1:2
     end
 end
 
-% plot corr coefficients
+%% plot corr coefficients
 load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
 title_txt = {'Simple RT' 'Go/no-go'};
 for grp = 1:2

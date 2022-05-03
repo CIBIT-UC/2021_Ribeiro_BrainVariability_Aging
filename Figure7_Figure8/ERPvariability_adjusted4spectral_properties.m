@@ -41,7 +41,7 @@ X = [T.exponent_simpleRT, ones(length(T.exponent_simpleRT), 1)];
 ERPvar_simpleRT_adjexp = Res(:, 1);
 
 % scatter plot and correlation analyses
-% scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt)
+% scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt, xlim_min)
 scatter_and_corr(X(T.group==1, 1), Y(T.group==1), 'CNV SD', 'Exponent', 'Young - simple RT', 1, -inf)
 scatter_and_corr(X(T.group==2, 1), Y(T.group==2), 'CNV SD', 'Exponent', 'Older - simple RT', 1, -inf)
 % go/no-go
@@ -88,13 +88,14 @@ ERPvar_gng_adjoffset = Res(:, 1);
 % scatter plot and correlation analyses
 scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'PSD offset', 'Young', 1, -inf)
 scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'PSD offset', 'Older', 1, -inf)
-%
+
 % plot_all_data_2tasks(data_grp1_task1, data_grp1_task2, data_grp2_task1, data_grp2_task2, y_label_text)
 plot_all_data_2tasks(Res(1:size(ERP_avg_amp_stdev_young, 2), 1), Res(1:size(ERP_avg_amp_stdev_young, 2), 2), Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 1), Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2), 'CNV variability residuals')
 % plot_all_data_onetask(data_grp1_task1, data_grp2_task1, y_label_text)
 plot_all_data_onetask(Res(1:size(ERP_avg_amp_stdev_young, 2), 2),  Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2), 'CNV SD residuals')
 [H,P,CI,STATS] = ttest2(Res(1:size(ERP_avg_amp_stdev_young, 2), 2),  Res(size(ERP_avg_amp_stdev_young, 2)+1:end, 2))
 % T_values = [T_values, Res];
+
 %% regressout alpha power from ERP variability of both groups
 Res = [];
 task = 1;
@@ -166,7 +167,7 @@ end
 % avg_power_spectrum_older(:, outliers_older, :) = [];
 
 Res = [];
-for task = 1:2
+for task = 2%1:2
 
     Y = [squeeze(ERP_avg_amp_stdev_young(task, :, 16))'; squeeze(ERP_avg_amp_stdev_older(task, :, 16))'];
     X = [[squeeze(10*log10(avg_power_spectrum_young(task, :, 2)))'; squeeze(10*log10(avg_power_spectrum_older(task, :, 2)))'],...
@@ -174,9 +175,9 @@ for task = 1:2
     [B,BINT,Res(:, task),RINT,STATS] = regress(Y,X);
     
     % scatter plot and correlation analyses
-    xlim_min = -.02;
-    scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'Slow spectral power', 'Young - simple RT', 0, xlim_min)
-    scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'Slow spectral power', 'Older - simple RT', 0, xlim_min)
+    xlim_min = -inf;%-.02;
+    scatter_and_corr(X(T.group==1), Y(T.group==1), 'CNV SD', 'log10(slow spectral power)', 'Young', 0, xlim_min)
+    scatter_and_corr(X(T.group==2), Y(T.group==2), 'CNV SD', 'log10(low spectral power)', 'Older', 0, xlim_min)
 
 end
 
@@ -284,7 +285,9 @@ function scatter_and_corr(X, Y, ylabel_txt, xlabel_txt, title_txt, incl_txt, xli
     if p(1, 2)<.05
         lsline;
     end
+    box off
     ax = gca; ax.FontSize = 24; ax.FontName = 'Arial';ax.Color = 'none';
+    ax.LineWidth = 2.5; 
     ylabel(ylabel_txt, 'FontSize', 32, 'FontWeight','normal');
     xlabel(xlabel_txt, 'FontSize', 32, 'FontWeight','normal');
     title(title_txt, 'FontSize', 32, 'FontWeight','normal');

@@ -204,7 +204,7 @@ for grp = 1:2
         
         clear pupil_avg_response_tmp pupil_response
         RT_pupil = cell(4, 1); time_on_task = cell(4, 1);
-        pupil_avg_response = cell(4, 1); pupil_bsln_phase = cell(4, 1); pupil_bsln_amp = cell(4, 1);
+        pupil_avg_response = cell(4, 3); pupil_bsln_phase = cell(4, 1); pupil_bsln_amp = cell(4, 1);
         for t = 1:4 % task runs excluding first run = passive task
         
             % calculate pupil go trials data
@@ -229,10 +229,13 @@ for grp = 1:2
             EEG = pop_rmbase( EEG, [-200    0]); % subtract baseline pupil
             
             % average pupil dilation from 1000 - 1500 ms after cue onset -
+            % also include later time windows 1500-2000; 2000-2500 ms
             % 240 sampling rate
             % pupil_avg_response{t} = squeeze(mean(EEG.data(1, 360:end, setdiff(1:60, RejectEpochsCorrect{t-1})), 2)); % time x trials 
 %             pupil_avg_response{t} = squeeze(mean(EEG.data(1, 481:600, :), 2)); % time x trials 
-            pupil_avg_response{t} = squeeze(mean(EEG.data(1, 1.2*EEG.srate:1.7*EEG.srate, :), 2)); % time x trials 
+            pupil_avg_response{t, 1} = squeeze(mean(EEG.data(1, 1.2*EEG.srate:1.7*EEG.srate, :), 2)); % time x trials
+            pupil_avg_response{t, 2} = squeeze(mean(EEG.data(1, 1.7*EEG.srate:2.2*EEG.srate, :), 2)); % time x trials 
+            pupil_avg_response{t, 3} = squeeze(mean(EEG.data(1, 2.2*EEG.srate:2.7*EEG.srate, :), 2)); % time x trials 
             % determine reaction time for each trial
             epoch_event=zeros(size(EEG.event, 2), 3);
 
@@ -302,7 +305,9 @@ for grp = 1:2
                 for epoch = 1:length(epochs2delete)
                     index2delete = [index2delete; find(pupil_epochs{t} == epochs2delete(epoch))];
                 end
-                pupil_avg_response{t}(index2delete) = [];
+                for time_wind = 1:3
+                    pupil_avg_response{t, time_wind}(index2delete) = [];
+                end
                 pupil_bsln_phase{t}(index2delete) = [];
                 pupil_bsln_amp{t}(index2delete) = [];
                 RT_pupil{t}(index2delete) = [];
@@ -341,62 +346,68 @@ for grp = 1:2
        
        % regress phase of slow fluctuations out of pupil response amplitude
        % simple RT
-       y = [pupil_avg_response{1}; pupil_avg_response{2}];
-       x = [[pupil_bsln_amp{1}.*cos(pupil_bsln_phase{1}); pupil_bsln_amp{2}.*cos(pupil_bsln_phase{2})], [pupil_bsln_amp{1}.*sin(pupil_bsln_phase{1}); pupil_bsln_amp{2}.*sin(pupil_bsln_phase{2})], ones(length(y), 1)];
-       [~,~,Res_pupil_simpleRT] = regress(y, x);
+       for time_wind = 1:3
+           y = [pupil_avg_response{1, time_wind}; pupil_avg_response{2, time_wind}];
+           x = [[pupil_bsln_amp{1}.*cos(pupil_bsln_phase{1}); pupil_bsln_amp{2}.*cos(pupil_bsln_phase{2})], [pupil_bsln_amp{1}.*sin(pupil_bsln_phase{1}); pupil_bsln_amp{2}.*sin(pupil_bsln_phase{2})], ones(length(y), 1)];
+           [~,~,Res_pupil_simpleRT{time_wind}] = regress(y, x);
 
-       % gng
-       y = [pupil_avg_response{3}; pupil_avg_response{4}];
-       x = [[pupil_bsln_amp{3}.*cos(pupil_bsln_phase{3}); pupil_bsln_amp{4}.*cos(pupil_bsln_phase{4})], [pupil_bsln_amp{3}.*sin(pupil_bsln_phase{3}); pupil_bsln_amp{4}.*sin(pupil_bsln_phase{4})], ones(length(y), 1)];
-       [~,~,Res_pupil_gng] = regress(y, x);
+           % gng
+           y = [pupil_avg_response{3, time_wind}; pupil_avg_response{4, time_wind}];
+           x = [[pupil_bsln_amp{3}.*cos(pupil_bsln_phase{3}); pupil_bsln_amp{4}.*cos(pupil_bsln_phase{4})], [pupil_bsln_amp{3}.*sin(pupil_bsln_phase{3}); pupil_bsln_amp{4}.*sin(pupil_bsln_phase{4})], ones(length(y), 1)];
+           [~,~,Res_pupil_gng{time_wind}] = regress(y, x);
+       end
        
        % compare RT from eeg with RT from pupil data
        RT_diff{grp}{part} = [[RT_eeg{1}; RT_eeg{2}; RT_eeg{3}; RT_eeg{4}], [RT_pupil{1}; RT_pupil{2}; RT_pupil{3}; RT_pupil{4}], [RT_eeg{1}; RT_eeg{2}; RT_eeg{3}; RT_eeg{4}]-[RT_pupil{1}; RT_pupil{2}; RT_pupil{3}; RT_pupil{4}]];
        
        % correlate erp and pupil response before adjustment
-       for chan = 1:size(ERPs{1}, 1)
-           % simple RT
-            [r,~,~,~,~,~] = skipped_correlation([ERPs{1}(chan, :)'; ERPs{2}(chan, :)'], [pupil_avg_response{1}; pupil_avg_response{2}],0);
-            coeff_erp_pupil{grp, 1}(part, chan) = r.Pearson;
-             % gng
-            [r,~,~,~,~,~] = skipped_correlation([ERPs{3}(chan, :)'; ERPs{4}(chan, :)'], [pupil_avg_response{3}; pupil_avg_response{4}],0);
-            coeff_erp_pupil{grp, 2}(part, chan) = r.Pearson;
+       for time_wind = 1:3
+           for chan = 1:size(ERPs{1}, 1)
+               % simple RT
+                [r,~,~,~,~,~] = skipped_correlation([ERPs{1}(chan, :)'; ERPs{2}(chan, :)'], [pupil_avg_response{1, time_wind}; pupil_avg_response{2, time_wind}],0);
+                coeff_erp_pupil{grp, 1,time_wind}(part, chan) = r.Pearson;
+                 % gng
+                [r,~,~,~,~,~] = skipped_correlation([ERPs{3}(chan, :)'; ERPs{4}(chan, :)'], [pupil_avg_response{3, time_wind}; pupil_avg_response{4, time_wind}],0);
+                coeff_erp_pupil{grp, 2, time_wind}(part, chan) = r.Pearson;
+           end
        end
-%        
        
-       %%
          % create variables for multiple regression
-         % ERP residuals for each channel and pupil response residuals as
+         % ERP residuals for each channel and pupil response residuals (earlier time window) as
          % independent variables
          % dependent variable RT
          % simple RT
         y = [RT_eeg{1}; RT_eeg{2}];
         for chan = 1:size(ERPs{1}, 1)
-            x = [Res_erp_simpleRT(:, chan), Res_pupil_simpleRT, ones(length(y), 1)];
+            x = [Res_erp_simpleRT(:, chan), Res_pupil_simpleRT{1}, ones(length(y), 1)];
 %           [b,bint,r,rint,stats] = regress(y,X)
             [coeff_rt_erp_pupil_phaseresid{grp, 1}(part, chan, :),~,~,~,stats_rt_erp_pupil_phaseresid{grp, 1}(part, chan, :)] = regress(y,x);
             [coeff_rt_erp_phaseresid{grp, 1}(part, chan, :),~,~,~,stats_rt_erp_phaseresid{grp, 1}(part, chan, :)] = regress(y,x(:, [1 3]));
             % within-subject correlation between pupil response amplitude
             % residuals and ERP residuals
-            [r,~,~,~,~,~] = skipped_correlation(Res_erp_simpleRT(:, chan), Res_pupil_simpleRT,0);
-            coeff_erp_pupil_phaseresid{grp, 1}(part, chan) = r.Pearson;
+            for time_wind = 1:3
+                [r,~,~,~,~,~] = skipped_correlation(Res_erp_simpleRT(:, chan), Res_pupil_simpleRT{time_wind},0);
+                coeff_erp_pupil_phaseresid{grp, 1, time_wind}(part, chan) = r.Pearson;
+            end
         end
         [coeff_rt_pupil_phaseresid{grp, 1}(part, :),~,~,~,stats_rt_pupil_phaseresid{grp, 1}(part, :)] = regress(y,x(:, [2 3]));
 
         % gng
         y = [RT_eeg{3}; RT_eeg{4}];
         for chan = 1:size(ERPs{1}, 1)
-            x = [ Res_erp_gng(:, chan), Res_pupil_gng, ones(length(y), 1)];
+            x = [ Res_erp_gng(:, chan), Res_pupil_gng{1}, ones(length(y), 1)];
             [coeff_rt_erp_pupil_phaseresid{grp, 2}(part, chan, :),~,~,~,stats_rt_erp_pupil_phaseresid{grp, 2}(part, chan, :)] = regress(y,x);
             [coeff_rt_erp_phaseresid{grp, 2}(part, chan, :),~,~,~,stats_rt_erp_phaseresid{grp, 2}(part, chan, :)] = regress(y,x(:, [1 3]));
             % within-subject correlation between pupil response amplitude
             % residuals and ERP residuals
-            [r,~,~,~,~,~] = skipped_correlation(Res_erp_gng(:, chan), Res_pupil_gng,0);
-            coeff_erp_pupil_phaseresid{grp, 2}(part, chan) = r.Pearson;
-            if chan == 25
-                figure; plot(Res_erp_gng(:, chan), Res_pupil_gng, 'o');
+            for time_wind = 1:3
+                [r,~,~,~,~,~] = skipped_correlation(Res_erp_gng(:, chan), Res_pupil_gng{time_wind},0);
+                coeff_erp_pupil_phaseresid{grp, 2, time_wind}(part, chan) = r.Pearson;
+                if chan == 25 && time_wind == 3
+                    figure; plot(Res_erp_gng(:, chan), Res_pupil_gng{time_wind}, 'o');
+                end
             end
-        end  
+        end
         [coeff_rt_pupil_phaseresid{grp, 2}(part, :),~,~,~,stats_rt_pupil_phaseresid{grp, 2}(part, :)] = regress(y,x(:, [2 3]));
     end
 end
@@ -634,7 +645,7 @@ end
 cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
 title_txt = {'Simple RT' 'Go/no-go'}; adj_text = {'with adj' 'without adj'}; grp_txt = {'young', 'older'};
 clear pval_t2 t_orig_t2 crit_t_t2 sig_chans_all
-for adj = 2%1:2
+for adj = 1%1:2
     if adj == 1 % with adjustment
         load coeff_erp_pupil_phaseresid; % group x task
         coeffs = coeff_erp_pupil_phaseresid;
@@ -642,111 +653,114 @@ for adj = 2%1:2
         load coeff_erp_pupil;
         coeffs = coeff_erp_pupil;
     end
-    clear pval_t1_all t_orig_t1_all crit_t_t1_all pval_t1 t_orig_t1 crit_t_t1
-    clear pval_t1 t_orig_t1 crit_t_t1
-    for task = 2%1:2
-        for grp = 1:2
-            [pval_t1(grp, task, :), t_orig_t1(grp, task, :), crit_t_t1(grp, task, :),~,~]=mult_comp_perm_t1(coeffs{grp, task});
+    for time_wind = 1:3
+        clear pval_t1_all t_orig_t1_all crit_t_t1_all pval_t1 t_orig_t1 crit_t_t1
+        clear pval_t1 t_orig_t1 crit_t_t1
+        for task = 2%1:2
+            for grp = 1:2
+                [pval_t1(grp, task, :), t_orig_t1(grp, task, :), crit_t_t1(grp, task, :),~,~]=mult_comp_perm_t1(coeffs{grp, task, time_wind});
+            end
         end
-    end
-    
-    % plot t-values from one sample t-test 
-    load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
-    title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
-    for grp = 1:2
-        for task = 2%[]%2%1:2  
 
+        % plot t-values from one sample t-test 
+        load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+        title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
+        for grp = 1:2
+            for task = 2%[]%2%1:2  
+
+                sig_t_values = zeros(1, 59);
+                sig_t_values(t_orig_t1(grp, task, :) > crit_t_t1(grp, task, 2)) = 1;
+                sig_t_values(t_orig_t1(grp, task, :) < crit_t_t1(grp, task, 1)) = 1;
+                sig_chan_number = find(sig_t_values == 1);
+
+                for x = 1:length(sig_chan_number)
+                    sig_chans_all{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+                end
+
+                figure;
+                if ~isempty(sig_chan_number)
+                    topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
+                            'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
+                end
+                topoplot(mean(coeffs{grp, task}, 1), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
+    %             caxis([-.18 0]); %c.Axis.FontSize = 16;
+                colorbar;
+    %             colorbar('Ticks',[-.15, -.1, -.05, 0], 'FontSize', 26, 'FontWeight','normal');
+                colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
+    %             title([grp_txt{grp}, '-',adj_text{adj}], 'FontSize', 30, 'FontWeight','normal')
+    %             set(get(gca,'title'),'Position',[0,-.65, 0])
+            end
+        end
+
+        % are the correlation coefficients different across groups?
+        for task = 1:2
+            [pval_t2(adj, task, :), t_orig_t2(adj, task, :), crit_t_t2(adj, task, :),~,~] = mult_comp_perm_t2(coeffs{1, task, time_wind}, coeffs{2, task, time_wind});
+        end
+
+         % plot t-values
+        load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+        clear sig_chans_all
+        for task = 2%1:2
             sig_t_values = zeros(1, 59);
-            sig_t_values(t_orig_t1(grp, task, :) > crit_t_t1(grp, task, 2)) = 1;
-            sig_t_values(t_orig_t1(grp, task, :) < crit_t_t1(grp, task, 1)) = 1;
+            sig_t_values(t_orig_t2(adj, task, :) > crit_t_t2(adj, task, 2)) = 1;
+            sig_t_values(t_orig_t2(adj, task, :) < crit_t_t2(adj, task, 1)) = 1;
             sig_chan_number = find(sig_t_values == 1);
 
             for x = 1:length(sig_chan_number)
                 sig_chans_all{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
             end
 
-            figure;
+            figure; 
             if ~isempty(sig_chan_number)
                 topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
                         'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
             end
-            topoplot(mean(coeffs{grp, task}, 1), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
-%             caxis([-.18 0]); %c.Axis.FontSize = 16;
+            topoplot(t_orig_t2(adj, task, :), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
+    %         caxis([-7 0]); %c.Axis.FontSize = 16;
             colorbar;
-%             colorbar('Ticks',[-.15, -.1, -.05, 0], 'FontSize', 26, 'FontWeight','normal');
+        %     colorbar('Ticks',[0, 2, 4], 'FontSize', 30, 'FontWeight','normal');
             colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
-%             title([grp_txt{grp}, '-',adj_text{adj}], 'FontSize', 30, 'FontWeight','normal')
-%             set(get(gca,'title'),'Position',[0,-.65, 0])
-        end
-    end
-    
-    % are the correlation coefficients different across groups?
-    for task = 1:2
-        [pval_t2(adj, task, :), t_orig_t2(adj, task, :), crit_t_t2(adj, task, :),~,~] = mult_comp_perm_t2(coeffs{1, task}, coeffs{2, task});
-    end
-    
-     % plot t-values
-    load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
-    clear sig_chans_all
-    for task = 2%1:2
-        sig_t_values = zeros(1, 59);
-        sig_t_values(t_orig_t2(adj, task, :) > crit_t_t2(adj, task, 2)) = 1;
-        sig_t_values(t_orig_t2(adj, task, :) < crit_t_t2(adj, task, 1)) = 1;
-        sig_chan_number = find(sig_t_values == 1);
-
-        for x = 1:length(sig_chan_number)
-            sig_chans_all{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+            title([title_txt{task}, adj_text{adj}], 'FontSize', 30, 'FontWeight','normal')
+            set(get(gca,'title'),'Position',[0,-.65, 0])
         end
 
-        figure; 
-        if ~isempty(sig_chan_number)
-            topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
-                    'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
-        end
-        topoplot(t_orig_t2(adj, task, :), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
-%         caxis([-7 0]); %c.Axis.FontSize = 16;
-        colorbar;
-    %     colorbar('Ticks',[0, 2, 4], 'FontSize', 30, 'FontWeight','normal');
-        colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
-        title([title_txt{task}, adj_text{adj}], 'FontSize', 30, 'FontWeight','normal')
-        set(get(gca,'title'),'Position',[0,-.65, 0])
-    end
-    
-    % testing with all participants together
-    clear pval_t1_all t_orig_t1_all crit_t_t1_all
-    for task = 1:2
-        [pval_t1_all(task, :), t_orig_t1_all(task, :), crit_t_t1_all(task, :),~,~]=mult_comp_perm_t1([coeffs{1, task}; coeffs{2, task}]);
-    end
-
-    % plot t-values from one sample t-test both groups together
-    load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
-    title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
-    for task = 2%1:2
-
-        sig_t_values = zeros(1, 59);
-        sig_t_values(t_orig_t1_all(task, :) > crit_t_t1_all(task, 2)) = 1;
-        sig_t_values(t_orig_t1_all(task, :) < crit_t_t1_all(task, 1)) = 1;
-        sig_chan_number = find(sig_t_values == 1);
-
-        for x = 1:length(sig_chan_number)
-            sig_chans_all{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+        % testing with all participants together
+        clear pval_t1_all t_orig_t1_all crit_t_t1_all
+        for task = 1:2
+            [pval_t1_all(task, :), t_orig_t1_all(task, :), crit_t_t1_all(task, :),~,~]=mult_comp_perm_t1([coeffs{1, task, time_wind}; coeffs{2, task, time_wind}]);
         end
 
-        figure; 
-        if ~isempty(sig_chan_number)
-            topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
-                    'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
-        end
-        topoplot(mean([coeffs{1, task}; coeffs{2, task}], 1), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
-        caxis([-.08 0]); %c.Axis.FontSize = 16;
-        colorbar;
-        colorbar('Ticks',[-.08,-.04, 0], 'FontSize', 26, 'FontWeight','normal');
-        colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
-%         title(title_txt{task}, 'FontSize', 30, 'FontWeight','normal')
-%         set(get(gca,'title'),'Position',[0,-.65, 0])
+        % plot t-values from one sample t-test both groups together
+        load G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\chanlocs_EEGChanOnly.mat
+        title_txt = {'Simple RT' 'Go/no-go'};%cmap = crameri('batlow');
+        for task = 2%1:2
 
+            sig_t_values = zeros(1, 59);
+            sig_t_values(t_orig_t1_all(task, :) > crit_t_t1_all(task, 2)) = 1;
+            sig_t_values(t_orig_t1_all(task, :) < crit_t_t1_all(task, 1)) = 1;
+            sig_chan_number = find(sig_t_values == 1);
+
+            for x = 1:length(sig_chan_number)
+                sig_chans_all{task}{x} = chanlocs_EEGChanOnly(sig_chan_number(x)).labels;
+            end
+
+            figure; 
+            if ~isempty(sig_chan_number)
+                topoplot(ones(59, 1)*.025, chanlocs_EEGChanOnly, 'electrodes', 'off', 'plotchans', sig_chan_number, 'style', 'blank',...
+                        'plotdisk', 'on',  'hcolor'  , 'none') ; hold on
+            end
+            topoplot(mean([coeffs{1, task}; coeffs{2, task}], 1), chanlocs_EEGChanOnly, 'electrodes', 'off'); 
+            caxis([-.08 0]); %c.Axis.FontSize = 16;
+            colorbar;
+            colorbar('Ticks',[-.08,-.04, 0], 'FontSize', 26, 'FontWeight','normal');
+            colormap(crameri('imola')); % needs colour maps from http://www.fabiocrameri.ch/colourmaps.php
+    %         title(title_txt{task}, 'FontSize', 30, 'FontWeight','normal')
+    %         set(get(gca,'title'),'Position',[0,-.65, 0])
+        end
     end
 end
+
+
 
 %% compare correlation coefficients with and without adjustment
 % coeff_erp_pupil_phaseresid; % group x task
@@ -780,23 +794,38 @@ end
 
 %% average correlation coefficients across channels and run repeated
 % measures anova
-load coeff_erp_pupil_phaseresid; % group x task
+cd('G:\ProjectAgingNeuromodulation\AuditoryResearch\EEGLAB_analysis\ERP_variability');
+load coeff_erp_pupil_phaseresid; % group x task x time window
 load coeff_erp_pupil;
 for grp =1:2
     for task = 1:2
-        coeffs_adj{grp, task} = mean(coeff_erp_pupil_phaseresid{grp, task}, 2);
-        coeffs_not_adj{grp, task} = mean(coeff_erp_pupil{grp, task}, 2);
+        for time_wind = 1:3
+            coeffs_adj{grp, task, time_wind} = mean(coeff_erp_pupil_phaseresid{grp, task, time_wind}, 2);
+            coeffs_not_adj{grp, task, time_wind} = mean(coeff_erp_pupil{grp, task, time_wind}, 2);
+        end
     end
 end
 
 % create table for spss
-var = [[ones(length(coeffs_adj{1, 1}), 1); ones(length(coeffs_adj{2, 1}), 1)*2],...
-    [coeffs_adj{1, 2}; coeffs_adj{2, 2}],[coeffs_not_adj{1, 2}; coeffs_not_adj{2, 2}]];
+var = [[ones(length(coeffs_adj{1, 1, 1}), 1); ones(length(coeffs_adj{2, 1, 1}), 1)*2],...
+    [coeffs_adj{1, 2, 1}; coeffs_adj{2, 2, 1}],[coeffs_not_adj{1, 2, 1}; coeffs_not_adj{2, 2, 1}], ...
+    [coeffs_adj{1, 2, 2}; coeffs_adj{2, 2, 2}],[coeffs_not_adj{1, 2, 2}; coeffs_not_adj{2, 2, 2}], ...
+    [coeffs_adj{1, 2, 3}; coeffs_adj{2, 2, 3}],[coeffs_not_adj{1, 2, 3}; coeffs_not_adj{2, 2, 3}]];
 
-corr_r = array2table(var, "VariableNames",["group", "corr_r_adj" "cor_r_not_adj"]);
+corr_r = array2table(var, "VariableNames",["group", "corr_r_adj1" "cor_r_not_adj1" "corr_r_adj2" "cor_r_not_adj2"...
+    "corr_r_adj3" "cor_r_not_adj3"]);
 
 writetable(corr_r, 'corr_erp_pupil_phaseresid.xlsx')
 
+
+%% plot_all_data_3tasks(data_grp1_task1, data_grp1_task2, data_grp1_task3,...
+ %   data_grp2_task1, data_grp2_task2, data_grp2_task3, y_label_text, x_visible, y_min, y_max)
+
+plot_all_data_3tasks(coeffs_adj{1, 2, 1}, coeffs_adj{1, 2, 2}, coeffs_adj{1, 2, 3},...
+ coeffs_adj{2, 2, 1}, coeffs_adj{2, 2, 2}, coeffs_adj{2, 2, 3}, 'Correlation \itr', 1, -.55, .35)
+
+plot_all_data_3tasks(coeffs_not_adj{1, 2, 1}, coeffs_not_adj{1, 2, 2}, coeffs_not_adj{1, 2, 3},...
+ coeffs_not_adj{2, 2, 1}, coeffs_not_adj{2, 2, 2}, coeffs_not_adj{2, 2, 3}, 'Correlation \itr', 1, -.55, .35)
 
 %% correlation was strongest in which channel?
 load coeff_erp_pupil_phaseresid
@@ -1279,7 +1308,7 @@ end
 
 %% function to plot all data points 3 conditions 2 groups
 function plot_all_data_3tasks(data_grp1_task1, data_grp1_task2, data_grp1_task3,...
-    data_grp2_task1, data_grp2_task2, data_grp2_task3, y_label_text)
+    data_grp2_task1, data_grp2_task2, data_grp2_task3, y_label_text, x_visible, y_min, y_max)
 
     % plot data for young group - simple RT and go/nogo task
     figure; box off; hold on
@@ -1342,14 +1371,18 @@ function plot_all_data_3tasks(data_grp1_task1, data_grp1_task2, data_grp1_task3,
     
     % axes('XColor','none');
     hold off;
-    axis([0 8 -inf 25]);
+    axis([0 8 y_min y_max]);
     ax = gca;
+    if x_visible == 0
+        ax.XAxis.Visible = 'off'; % remove x-axis
+    end
     ax.LineWidth = 2.5; 
     ax.FontSize = 24;
     ax.FontName = 'Arial';
     ax.Color = 'none';
-    ax.XTickLabel=[];
-    xticks([1 2 3 5 6 7])
+%     ax.XTickLabel=[];
+    xticks([1 2 3 5 6 7]);
+    ax.XTickLabel=[0,.5,1,0,.5,1];
     ylabel(y_label_text, 'FontSize',32, 'FontWeight','normal')
     
 %     x0=10;
